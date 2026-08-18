@@ -3,120 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMO Dashboard</title>
-    <!-- CSS for beautiful UI -->
+    <title>Premium KPI Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Oya deepu Colors Tika */
+        :root {
+            --c-900: #03045E;
+            --c-800: #023E8A;
+            --c-700: #0077B6;
+            --c-600: #0096C7;
+            --c-500: #00B4D8;
+            --c-400: #48CAE4;
+            --c-300: #90E0EF;
+            --c-200: #ADE8F4;
+            --c-100: #CAF0F8;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--c-900), var(--c-800));
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Effects */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Half Wheel Layout */
+        .wheel-container {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 500px;
+            height: 800px;
+            pointer-events: none; /* Let clicks pass through empty areas */
+        }
+
+        .wheel {
+            position: absolute;
+            top: 50%;
+            left: -350px; /* Hide half of the wheel */
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255,255,255,0.1);
+            transform: translateY(-50%) rotate(0deg);
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: auto;
+        }
+
+        /* Placing items on the wheel */
+        .wheel-item {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: var(--c-700);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 2px solid var(--c-400);
+            transition: all 0.3s ease;
+            margin-top: -35px; /* offset half height */
+            margin-left: -35px; /* offset half width */
+            z-index: 10;
+        }
+
+        .wheel-item:hover, .wheel-item.active {
+            background: var(--c-400);
+            color: var(--c-900);
+            transform: scale(1.2);
+            box-shadow: 0 0 20px var(--c-400);
+        }
+
+        /* Main Card Animation (Morph effect) */
+        .main-card-container {
+            opacity: 0;
+            transform: scale(0.8) translateX(50px);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .main-card-container.active {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+        }
+
+        /* Customizing dropdown */
+        select {
+            background-color: var(--c-700);
+            color: white;
+            border: 1px solid var(--c-500);
+            border-radius: 8px;
+            padding: 8px 16px;
+            outline: none;
+        }
+        select:focus { border-color: var(--c-300); }
+        option { background-color: var(--c-900); }
+    </style>
 </head>
-<body class="bg-blue-50 p-8 font-sans">
+<body class="min-h-screen flex flex-col">
 
-    <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-blue-900">Live Business KPI Dashboard</h1>
-            <span id="lastUpdated" class="text-sm font-semibold text-gray-600 bg-white px-4 py-2 rounded-lg shadow">Updating...</span>
+    <!-- Top Header & Filter -->
+    <header class="w-full p-6 flex justify-between items-center z-20">
+        <h1 class="text-3xl font-bold tracking-wider" style="color: var(--c-100);">IMO Dashboard</h1>
+        
+        <div class="flex items-center space-x-4">
+            <span class="text-sm" style="color: var(--c-300);">Filter by Period:</span>
+            <select id="monthFilter" onchange="filterData()">
+                <option value="all">Loading Data...</option>
+            </select>
         </div>
+    </header>
 
-        <!-- KPI Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-red-500">
-                <h3 class="text-gray-500 font-bold mb-1">Rep Variance</h3>
-                <p id="var-rep" class="text-sm text-gray-400 mb-2">Rep Name: Loading...</p>
-                <p id="var-amount" class="text-2xl font-bold text-gray-800">Rs. 0</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500">
-                <h3 class="text-gray-500 font-bold mb-1">Sales Return</h3>
-                <p id="sales-ret-rep" class="text-sm text-gray-400 mb-2">Rep Name: Loading...</p>
-                <p id="sales-ret-amount" class="text-2xl font-bold text-gray-800">Rs. 0</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
-                <h3 class="text-gray-500 font-bold mb-1">Issued Qty</h3>
-                <p id="issued-rep" class="text-sm text-gray-400 mb-2">Rep Name: Loading...</p>
-                <p id="issued-amount" class="text-2xl font-bold text-gray-800">0</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500">
-                <h3 class="text-gray-500 font-bold mb-1">Shop Return</h3>
-                <p id="shop-ret-rep" class="text-sm text-gray-400 mb-2">Rep Name: Loading...</p>
-                <p id="shop-ret-amount" class="text-2xl font-bold text-gray-800">Rs. 0</p>
-            </div>
+    <!-- Left Side: Half Wheel -->
+    <div class="wheel-container">
+        <div class="wheel" id="kpiWheel">
+            <!-- Items are positioned via JS -->
+            <div class="wheel-item" data-angle="-75" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
+            <div class="wheel-item" data-angle="-45" data-kpi="2" onclick="selectKPI(2, this)">KPI 2</div>
+            <div class="wheel-item" data-angle="-15" data-kpi="3" onclick="selectKPI(3, this)">KPI 3</div>
+            <div class="wheel-item" data-angle="15" data-kpi="4" onclick="selectKPI(4, this)">KPI 4</div>
+            <div class="wheel-item" data-angle="45" data-kpi="5" onclick="selectKPI(5, this)">KPI 5</div>
+            <div class="wheel-item" data-angle="75" data-kpi="6" onclick="selectKPI(6, this)">KPI 6</div>
         </div>
     </div>
 
-    <!-- JavaScript Data Ganna Kotasa -->
+    <!-- Right Side: Main Display Area -->
+    <main class="flex-1 flex items-center justify-center pl-64 p-8 z-10">
+        
+        <!-- Main KPI Card -->
+        <div id="mainDisplay" class="main-card-container glass w-full max-w-3xl rounded-3xl p-12 shadow-2xl relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-20 -mr-20 -mt-20 blur-2xl" style="background: var(--c-400);"></div>
+            
+            <div class="relative z-10">
+                <h2 id="kpiTitle" class="text-5xl font-bold mb-4" style="color: var(--c-100);">Select a KPI</h2>
+                <p id="kpiDescription" class="text-lg mb-10" style="color: var(--c-300);">Click on the wheel to view data.</p>
+                
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="p-6 rounded-2xl glass border-t-4" style="border-color: var(--c-500);">
+                        <p class="text-sm font-semibold mb-2" style="color: var(--c-200);">Sales Return Rate</p>
+                        <p id="srrValue" class="text-6xl font-extrabold" style="color: var(--c-100);">0%</p>
+                    </div>
+                    
+                    <div class="flex flex-col justify-center space-y-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider" style="color: var(--c-300);">Total Issued Qty</p>
+                            <p id="issueValue" class="text-2xl font-bold" style="color: var(--c-100);">0</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-wider" style="color: var(--c-300);">Total Return Qty</p>
+                            <p id="returnValue" class="text-2xl font-bold" style="color: var(--c-100);">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script>
-        // Oyage CSV links 4
-        const URL_REP_VARIANCE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=1628331196&single=true&output=csv';
+        // 🔴 OYAGE LINKS 4 METHANATA DANNA 🔴
+        const URL_REP_VARIANCE = 'LINK_1';
         const URL_SALES_RETURN = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=287547461&single=true&output=csv';
         const URL_ISSUED_QTY   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=957766558&single=true&output=csv';
-        const URL_SHOP_RETURN  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=856858213&single=true&output=csv';
+        const URL_SHOP_RETURN  = 'LINK_4';
 
-        const REFRESH_INTERVAL = 5000; // Thathpara 5n 5ta update wenna
+        let globalSalesReturn = [];
+        let globalIssuedQty = [];
+        let activeKPI = null;
 
+        // Position items on the wheel geometrically
+        const wheelRadius = 350; 
+        document.querySelectorAll('.wheel-item').forEach(item => {
+            const angleDeg = parseFloat(item.getAttribute('data-angle'));
+            const angleRad = angleDeg * (Math.PI / 180);
+            
+            // Calculate x, y based on circle math (Center is 50%,50%)
+            const x = Math.cos(angleRad) * wheelRadius;
+            const y = Math.sin(angleRad) * wheelRadius;
+            
+            // Counter-rotate the text inside so it doesn't spin upside down
+            item.style.transform = `translate(${x}px, ${y}px) rotate(${-angleDeg}deg)`;
+            item.dataset.baseTransform = `translate(${x}px, ${y}px)`; // Store base for hover state
+        });
+
+        // Parse CSV helper
         function parseCSV(csvText) {
             const rows = csvText.split('\n').map(row => row.split(','));
-            return rows.slice(1).filter(row => row.length > 1); 
+            return rows.slice(1).filter(row => row.length > 1);
         }
 
-        async function fetchRealTimeData() {
+        async function initData() {
             try {
-                const timestamp = '&t=' + new Date().getTime(); 
-
-                const [resVariance, resSalesRet, resIssued, resShopRet] = await Promise.all([
-                    fetch(URL_REP_VARIANCE + timestamp),
+                const timestamp = '&t=' + new Date().getTime();
+                // Fetching only required ones for this KPI currently to speed up
+                const [resSalesRet, resIssued] = await Promise.all([
                     fetch(URL_SALES_RETURN + timestamp),
-                    fetch(URL_ISSUED_QTY + timestamp),
-                    fetch(URL_SHOP_RETURN + timestamp)
+                    fetch(URL_ISSUED_QTY + timestamp)
                 ]);
 
-                const dataVariance = parseCSV(await resVariance.text());
-                const dataSalesRet = parseCSV(await resSalesRet.text());
-                const dataIssued   = parseCSV(await resIssued.text());
-                const dataShopRet  = parseCSV(await resShopRet.text());
+                globalSalesReturn = parseCSV(await resSalesRet.text());
+                globalIssuedQty = parseCSV(await resIssued.text());
 
-                // Rep Variance (Anthima Row eka ganeema)
-                if(dataVariance.length > 0) {
-                    const latest = dataVariance[dataVariance.length - 1]; 
-                    document.getElementById('var-rep').innerText = "Rep Name: " + latest[2];
-                    document.getElementById('var-amount').innerText = "Rs. " + latest[3];
-                }
-
-                // Sales Return
-                if(dataSalesRet.length > 0) {
-                    const latest = dataSalesRet[dataSalesRet.length - 1]; 
-                    document.getElementById('sales-ret-rep').innerText = "Rep Name: " + latest[2];
-                    document.getElementById('sales-ret-amount').innerText = "Rs. " + latest[3];
-                }
-
-                // Issued Qty
-                if(dataIssued.length > 0) {
-                    const latest = dataIssued[dataIssued.length - 1]; 
-                    document.getElementById('issued-rep').innerText = "Rep Name: " + latest[2];
-                    document.getElementById('issued-amount').innerText = latest[3];
-                }
-
-                // Shop Return
-                if(dataShopRet.length > 0) {
-                    const latest = dataShopRet[dataShopRet.length - 1]; 
-                    document.getElementById('shop-ret-rep').innerText = "Rep Name: " + latest[2];
-                    document.getElementById('shop-ret-amount').innerText = "Rs. " + latest[3];
-                }
-
-                const now = new Date();
-                document.getElementById('lastUpdated').innerText = "Last Updated: " + now.toLocaleTimeString();
+                extractMonthsAndPopulateFilter();
+                
+                // Auto click the first KPI to show it
+                selectKPI(1, document.querySelector('.wheel-item[data-kpi="1"]'));
 
             } catch (error) {
-                console.error('Data loading error:', error);
-                document.getElementById('lastUpdated').innerText = "Error Loading Data!";
+                console.error("Error loading data", error);
             }
         }
 
-        // Mulinma load weddi data genna ganeema
-        fetchRealTimeData();
+        // Dropdown ekata Year - Month tika ganeema
+        function extractMonthsAndPopulateFilter() {
+            const monthSet = new Set();
+            
+            // Year (col 0) and Month (col 1) ekathu karala gannawa
+            globalSalesReturn.forEach(row => monthSet.add(`${row[0]}-${row[1]}`.trim()));
+            globalIssuedQty.forEach(row => monthSet.add(`${row[0]}-${row[1]}`.trim()));
+
+            const filter = document.getElementById('monthFilter');
+            filter.innerHTML = ''; // Clear loading text
+
+            const sortedMonths = Array.from(monthSet).sort((a,b) => b.localeCompare(a)); // Descending order
+            
+            if(sortedMonths.length === 0) {
+                filter.innerHTML = '<option value="">No Data</option>';
+                return;
+            }
+
+            sortedMonths.forEach(ym => {
+                const opt = document.createElement('option');
+                opt.value = ym;
+                // Ex: "2024-January"
+                opt.textContent = ym.replace('-', ' - ');
+                filter.appendChild(opt);
+            });
+
+            // Trigger calculation for the latest month
+            filterData();
+        }
+
+        function filterData() {
+            if(activeKPI === 1) {
+                calculateSalesReturnRate();
+            }
+            // Thawa KPIs add weddi methanata switch case ekak danna puluwan
+        }
+
+        function calculateSalesReturnRate() {
+            const selectedYM = document.getElementById('monthFilter').value;
+            if(!selectedYM) return;
+
+            let totalIssue = 0;
+            let totalReturn = 0;
+
+            // Calculate Total Issued
+            globalIssuedQty.forEach(row => {
+                const rowYM = `${row[0]}-${row[1]}`.trim();
+                if(rowYM === selectedYM) {
+                    const qty = parseFloat(row[3]) || 0; // Col 3 is Issued Qty
+                    totalIssue += qty;
+                }
+            });
+
+            // Calculate Total Returned
+            globalSalesReturn.forEach(row => {
+                const rowYM = `${row[0]}-${row[1]}`.trim();
+                if(rowYM === selectedYM) {
+                    const qty = parseFloat(row[3]) || 0; // Col 3 is Return Qty
+                    totalReturn += qty;
+                }
+            });
+
+            // Calculate Rate
+            const rate = totalIssue > 0 ? ((totalReturn / totalIssue) * 100).toFixed(2) : 0.00;
+
+            // UI eka update kirima
+            document.getElementById('issueValue').innerText = totalIssue.toLocaleString();
+            document.getElementById('returnValue').innerText = totalReturn.toLocaleString();
+            
+            // Animate number (podi lassana effect ekak)
+            const rateEl = document.getElementById('srrValue');
+            rateEl.innerText = `${rate}%`;
+        }
+
+        // Wheel eke click kalama wena dewal
+        function selectKPI(id, element) {
+            activeKPI = id;
+
+            // Highlight selected item
+            document.querySelectorAll('.wheel-item').forEach(el => {
+                el.classList.remove('active');
+                el.style.transform = el.dataset.baseTransform + ` rotate(${document.getElementById('kpiWheel').dataset.currentRotation || 0}deg)`; // Reset scaling
+            });
+            
+            element.classList.add('active');
+            
+            // Rotate the wheel to bring clicked item to right-center (0 degrees)
+            const angleToRotate = -parseFloat(element.getAttribute('data-angle'));
+            const wheel = document.getElementById('kpiWheel');
+            wheel.style.transform = `translateY(-50%) rotate(${angleToRotate}deg)`;
+            wheel.dataset.currentRotation = angleToRotate; // save state
+
+            // Keep texts upright
+            document.querySelectorAll('.wheel-item').forEach(el => {
+                const originalAngle = parseFloat(el.getAttribute('data-angle'));
+                // base transform + counter rotate wheel spin + counter rotate own angle
+                el.style.transform = el.dataset.baseTransform + ` rotate(${-(angleToRotate + originalAngle)}deg)`;
+                
+                // Add scale back if active
+                if(el.classList.contains('active')) {
+                     el.style.transform += ' scale(1.3)';
+                }
+            });
+
+            // Animate Main Card (Morph effect)
+            const mainCard = document.getElementById('mainDisplay');
+            mainCard.classList.remove('active');
+            
+            setTimeout(() => {
+                if(id === 1) {
+                    document.getElementById('kpiTitle').innerText = "Sales Return Rate";
+                    document.getElementById('kpiDescription').innerText = "Percentage of products returned compared to total products issued.";
+                    filterData(); // Recalculate based on current dropdown
+                } else {
+                    document.getElementById('kpiTitle').innerText = `KPI ${id} (Coming Soon)`;
+                    document.getElementById('kpiDescription').innerText = "This KPI is currently under construction.";
+                    document.getElementById('srrValue').innerText = "-";
+                    document.getElementById('issueValue').innerText = "-";
+                    document.getElementById('returnValue').innerText = "-";
+                }
+                mainCard.classList.add('active');
+            }, 300); // Wait for fade out
+        }
+
+        // Start 
+        initData();
         
-        // Thathpara 5n 5ta auto update kirima
-        setInterval(fetchRealTimeData, REFRESH_INTERVAL);
+        // Polling for live updates
+        setInterval(initData, 10000); // every 10 seconds refresh data
+
     </script>
 </body>
 </html>
