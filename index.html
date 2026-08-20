@@ -6,7 +6,6 @@
     <title>IMO Chicken & Agro - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom Colors */
         :root {
             --c-900: #03045E;
             --c-800: #023E8A;
@@ -17,17 +16,24 @@
             --c-300: #90E0EF;
             --c-200: #ADE8F4;
             --c-100: #CAF0F8;
+            
+            /* Dynamic Background Variable */
+            --bg-color: var(--c-900);
+            --bg-glow: var(--c-800);
         }
 
         body {
-            background: linear-gradient(135deg, var(--c-900), var(--c-800));
+            background-color: var(--bg-color);
+            /* Premium Radial Gradient Overlay */
+            background-image: radial-gradient(circle at top right, var(--bg-glow) 0%, transparent 60%);
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden;
             margin: 0;
+            /* Smooth background transition */
+            transition: background-color 1s ease, background-image 1s ease;
         }
 
-        /* Glassmorphism */
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
@@ -35,11 +41,9 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Target Badges */
         .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; }
 
-        /* Wheel UI - Fixes Applied Here */
         .wheel-container {
             position: fixed;
             top: 50%;
@@ -47,8 +51,8 @@
             transform: translateY(-50%);
             width: 500px;
             height: 800px;
-            pointer-events: none; /* Let clicks pass through empty container */
-            z-index: 40; /* Keep below header but above main card */
+            pointer-events: none; 
+            z-index: 40; 
         }
 
         .wheel {
@@ -61,7 +65,7 @@
             border: 2px dashed rgba(255,255,255,0.15);
             transform: translateY(-50%) rotate(0deg);
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            pointer-events: none; /* Fix: Prevent invisible wheel from blocking clicks */
+            pointer-events: none; 
         }
 
         .wheel-item {
@@ -85,7 +89,7 @@
             margin-top: -40px; 
             margin-left: -40px; 
             z-index: 50;
-            pointer-events: auto; /* Fix: Only the buttons are clickable */
+            pointer-events: auto; 
         }
 
         .wheel-item:hover, .wheel-item.active {
@@ -95,7 +99,6 @@
             box-shadow: 0 0 25px var(--c-400);
         }
 
-        /* Main Card Animations */
         .main-card-container {
             opacity: 0;
             transform: scale(0.9) translateX(30px);
@@ -107,7 +110,6 @@
             transform: scale(1) translateX(0);
         }
 
-        /* Dropdown Styling */
         select {
             background-color: rgba(255,255,255,0.1);
             color: white;
@@ -122,14 +124,12 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Top Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
         <div class="flex items-center space-x-4">
-            <!-- Root directory eke thiyena logo.png -->
             <img src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
-                <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">IMO Chicken & Agro</h1>
-                <p class="text-xs tracking-widest uppercase" style="color: var(--c-400);">Performance Dashboard</p>
+                <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">Imo Chicken & Agro (Pvt) Ltd.</h1>
+                <p class="text-xs tracking-widest uppercase" style="color: var(--c-400);">KPI Monitoring Dashboard</p>
             </div>
         </div>
         
@@ -141,7 +141,6 @@
         </div>
     </header>
 
-    <!-- Wheel Navigation -->
     <div class="wheel-container">
         <div class="wheel" id="kpiWheel">
             <div class="wheel-item" data-angle="-75" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
@@ -153,7 +152,6 @@
         </div>
     </div>
 
-    <!-- Main Content Display -->
     <main class="flex-1 flex items-center justify-center pl-40 md:pl-64 p-8 z-10 relative">
         <div id="mainDisplay" class="main-card-container glass w-full max-w-4xl rounded-[2rem] p-12 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -mr-32 -mt-32 blur-3xl" style="background: var(--c-400);"></div>
@@ -166,13 +164,11 @@
                 <p id="kpiDescription" class="text-lg mb-10 opacity-80" style="color: var(--c-200);">Please wait while data is being prepared.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Main Value -->
                     <div class="col-span-1 md:col-span-1 p-8 rounded-3xl glass border-t-4 flex flex-col justify-center items-center text-center" style="border-color: var(--c-400);">
                         <p id="mainMetricLabel" class="text-sm font-semibold uppercase tracking-widest mb-2" style="color: var(--c-300);">Rate</p>
                         <p id="mainMetricValue" class="text-5xl md:text-6xl font-black" style="color: var(--c-100);">0%</p>
                     </div>
                     
-                    <!-- Sub Values -->
                     <div class="col-span-1 md:col-span-2 flex flex-col justify-center space-y-6 md:pl-8">
                         <div class="glass p-5 rounded-2xl">
                             <p id="subMetric1Label" class="text-xs uppercase tracking-wider opacity-70 mb-1" style="color: var(--c-200);">Metric 1</p>
@@ -189,7 +185,6 @@
     </main>
 
     <script>
-        // Google Sheets Data Sources
         const URL_SALES_RETURN = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=287547461&single=true&output=csv';
         const URL_ISSUED_QTY   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=957766558&single=true&output=csv';
         const URL_SHOP_RETURN  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=856858213&single=true&output=csv';
@@ -198,8 +193,18 @@
 
         let gData = { salesReturn: [], issuedQty: [], shopReturn: [], repReport: [], forecast: [] };
         let activeKPI = 1;
+        let isInitialLoad = true; // Control variable to prevent resetting KPI
 
-        // Positioning the wheel items mathematically
+        // Colors for Background Transitions
+        const bgColors = {
+            1: { main: "var(--c-900)", glow: "var(--c-800)" },
+            2: { main: "var(--c-800)", glow: "var(--c-700)" },
+            3: { main: "var(--c-900)", glow: "var(--c-600)" },
+            4: { main: "#023E8A", glow: "var(--c-500)" },
+            5: { main: "var(--c-900)", glow: "#0096C7" },
+            6: { main: "#03045E", glow: "var(--c-400)" }
+        };
+
         const wheelRadius = 350; 
         document.querySelectorAll('.wheel-item').forEach(item => {
             const angleDeg = parseFloat(item.getAttribute('data-angle'));
@@ -210,7 +215,6 @@
             item.dataset.baseTransform = `translate(${x}px, ${y}px)`; 
         });
 
-        // Advanced CSV Parser (Bypasses commas inside numbers like "11,588.45")
         function parseCSVAdvanced(str) {
             const result = [];
             const lines = str.split('\n');
@@ -229,16 +233,15 @@
                 arr.push(val);
                 result.push(arr.map(v => v.trim().replace(/^"|"$/g, '').replace(/,/g, ''))); 
             }
-            return result.slice(1); // Exclude Header Row
+            return result.slice(1); 
         }
 
-        // Extracts YYYY-Month from various Date string formats
         function getYMFromDateStr(dStr) {
             if(!dStr) return "";
             let d = new Date(dStr);
             if(isNaN(d) && dStr.includes('/')) {
                 let p = dStr.split(/[/-]/);
-                if(p.length === 3) d = new Date(`${p[2]}-${p[1]}-${p[0]}`); // Try DD/MM/YYYY
+                if(p.length === 3) d = new Date(`${p[2]}-${p[1]}-${p[0]}`); 
             }
             if(!isNaN(d)) {
                 return `${d.getFullYear()}-${d.toLocaleString('default', { month: 'long' })}`;
@@ -246,7 +249,6 @@
             return "";
         }
 
-        // Fetch all Data initially
         async function initData() {
             try {
                 const ts = '&t=' + new Date().getTime();
@@ -264,7 +266,6 @@
                 gData.repReport   = parseCSVAdvanced(await resRR.text());
                 gData.forecast    = parseCSVAdvanced(await resFc.text());
 
-                // Populate the Dropdown Filter
                 const monthSet = new Set();
                 [gData.salesReturn, gData.issuedQty, gData.shopReturn, gData.forecast].forEach(dataset => {
                     dataset.forEach(row => { if(row[0] && row[1]) monthSet.add(`${row[0]}-${row[1]}`.trim()); });
@@ -290,17 +291,38 @@
                     filter.appendChild(opt);
                 });
 
-                // Trigger first KPI automatically once data is loaded
-                selectKPI(1, document.querySelector('.wheel-item[data-kpi="1"]'));
+                if(isInitialLoad) {
+                    // Logic: Auto-select Current System Month
+                    const now = new Date();
+                    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    const currentYM = `${now.getFullYear()}-${monthNames[now.getMonth()]}`;
+                    
+                    let foundCurrentMonth = false;
+                    for (let i = 0; i < filter.options.length; i++) {
+                        if (filter.options[i].value === currentYM) {
+                            filter.selectedIndex = i;
+                            foundCurrentMonth = true;
+                            break;
+                        }
+                    }
+                    
+                    // Trigger first KPI automatically on initial load
+                    selectKPI(1, document.querySelector('.wheel-item[data-kpi="1"]'));
+                    isInitialLoad = false;
+                } else {
+                    // If just refreshing background data, only update calculations
+                    filterData();
+                }
 
             } catch (error) {
                 console.error("Data fetch error", error);
-                document.getElementById('kpiTitle').innerText = "Connection Error!";
-                document.getElementById('kpiDescription').innerText = "Please check your internet or Google Sheet links.";
+                if(isInitialLoad) {
+                    document.getElementById('kpiTitle').innerText = "Connection Error!";
+                    document.getElementById('kpiDescription').innerText = "Please check your internet or Google Sheet links.";
+                }
             }
         }
 
-        // Set the Target Badge (Green/Red)
         function setTargetBadge(isSuccess, text) {
             const badge = document.getElementById('targetBadge');
             badge.style.display = 'block';
@@ -312,7 +334,6 @@
             }
         }
 
-        // Filter Triggered by Dropdown
         function filterData() {
             const ym = document.getElementById('monthFilter').value;
             if(!ym) return;
@@ -322,10 +343,8 @@
             else if(activeKPI === 3) calculateSFA(ym);
         }
 
-        // --- KPI 1: Sales Return Rate ---
         function calculateSRR(ym) {
             let totalIssue = 0, totalReturn = 0;
-
             gData.issuedQty.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalIssue += parseFloat(r[3]) || 0; });
             gData.salesReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalReturn += parseFloat(r[3]) || 0; });
 
@@ -340,10 +359,8 @@
             setTargetBadge(rate < 4, `Target: < 4% | Actual: ${rate.toFixed(2)}%`);
         }
 
-        // --- KPI 2: Shop Return Rate ---
         function calculateShRR(ym) {
             let totalShopReturn = 0, totalSold = 0;
-
             gData.shopReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalShopReturn += parseFloat(r[3]) || 0; });
             gData.repReport.forEach(r => { if(getYMFromDateStr(r[0]) === ym) totalSold += parseFloat(r[7]) || 0; });
 
@@ -358,10 +375,8 @@
             setTargetBadge(rate < 1, `Target: < 1% | Actual: ${rate.toFixed(2)}%`);
         }
 
-        // --- KPI 3: Sales Forecast Accuracy ---
         function calculateSFA(ym) {
             let totalForecast = 0, totalSold = 0;
-
             gData.forecast.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalForecast += parseFloat(r[4]) || 0; });
             gData.repReport.forEach(r => { if(getYMFromDateStr(r[0]) === ym) totalSold += parseFloat(r[7]) || 0; });
 
@@ -379,35 +394,33 @@
             setTargetBadge(accuracy > 98, `Target: > 98% | Actual: ${accuracy.toFixed(2)}%`);
         }
 
-        // --- Wheel Click & Animation Logic ---
         function selectKPI(id, element) {
             activeKPI = id;
 
-            // Remove active state from all
+            // Update Background Colors Smoothly
+            document.documentElement.style.setProperty('--bg-color', bgColors[id].main);
+            document.documentElement.style.setProperty('--bg-glow', bgColors[id].glow);
+
             document.querySelectorAll('.wheel-item').forEach(el => {
                 el.classList.remove('active');
                 el.style.transform = el.dataset.baseTransform + ` rotate(${document.getElementById('kpiWheel').dataset.currentRotation || 0}deg)`; 
             });
             
-            // Add active to clicked item
             element.classList.add('active');
             
-            // Spin the wheel
             const angleToRotate = -parseFloat(element.getAttribute('data-angle'));
             const wheel = document.getElementById('kpiWheel');
             wheel.style.transform = `translateY(-50%) rotate(${angleToRotate}deg)`;
             wheel.dataset.currentRotation = angleToRotate; 
 
-            // Counter-rotate items so text stays upright
             document.querySelectorAll('.wheel-item').forEach(el => {
                 const originalAngle = parseFloat(el.getAttribute('data-angle'));
                 el.style.transform = el.dataset.baseTransform + ` rotate(${-(angleToRotate + originalAngle)}deg)`;
-                if(el.classList.contains('active')) el.style.transform += ' scale(1.15)'; // Pop effect
+                if(el.classList.contains('active')) el.style.transform += ' scale(1.15)'; 
             });
 
-            // Morph Animation for Main Card
             const mainCard = document.getElementById('mainDisplay');
-            mainCard.classList.remove('active'); // Fade out
+            mainCard.classList.remove('active'); 
             
             setTimeout(() => {
                 const badge = document.getElementById('targetBadge');
@@ -428,7 +441,6 @@
                     document.getElementById('mainMetricLabel').innerText = "Accuracy";
                     filterData();
                 } else {
-                    // KPI 4, 5, 6
                     document.getElementById('kpiTitle').innerText = `KPI ${id} (Under Construction)`;
                     document.getElementById('kpiDescription').innerText = "Details for this metric will be available soon.";
                     document.getElementById('mainMetricLabel').innerText = "N/A";
@@ -437,17 +449,39 @@
                     document.getElementById('subMetric1Value').innerText = "-";
                     document.getElementById('subMetric2Label').innerText = "Metric 2";
                     document.getElementById('subMetric2Value').innerText = "-";
-                    badge.style.display = 'none'; // Hide target badge
+                    badge.style.display = 'none'; 
                 }
-                mainCard.classList.add('active'); // Fade in
+                mainCard.classList.add('active'); 
             }, 400); 
         }
+
+        // Mouse Wheel Scroll Functionality
+        let isScrolling = false;
+        window.addEventListener('wheel', (e) => {
+            if (isScrolling) return; // Prevent rapid scrolling
+            
+            let nextId = activeKPI;
+            if (e.deltaY > 0) { // Scroll Down -> Next KPI
+                nextId = activeKPI < 6 ? activeKPI + 1 : 1; 
+            } else if (e.deltaY < 0) { // Scroll Up -> Previous KPI
+                nextId = activeKPI > 1 ? activeKPI - 1 : 6;
+            }
+
+            if (nextId !== activeKPI) {
+                isScrolling = true;
+                const nextElement = document.querySelector(`.wheel-item[data-kpi="${nextId}"]`);
+                selectKPI(nextId, nextElement);
+                
+                // Wait for animation to finish before allowing next scroll
+                setTimeout(() => { isScrolling = false; }, 800); 
+            }
+        });
 
         // Start App
         initData();
         
-        // Auto Update Every 15 Seconds
-        setInterval(initData, 15000); 
+        // Auto Update Every 10 Minutes (600,000 milliseconds)
+        setInterval(initData, 600000); 
 
     </script>
 </body>
