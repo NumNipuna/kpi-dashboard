@@ -6,6 +6,7 @@
     <title>IMO Chicken & Agro - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Original Premium Blue Colors */
         :root {
             --c-900: #03045E;
             --c-800: #023E8A;
@@ -16,34 +17,41 @@
             --c-300: #90E0EF;
             --c-200: #ADE8F4;
             --c-100: #CAF0F8;
-            
-            /* Dynamic Background Variable */
-            --bg-color: var(--c-900);
-            --bg-glow: var(--c-800);
         }
 
         body {
-            background-color: var(--bg-color);
-            /* Premium Radial Gradient Overlay */
-            background-image: radial-gradient(circle at top right, var(--bg-glow) 0%, transparent 60%);
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
+            overflow: hidden; 
             margin: 0;
-            /* Smooth background transition */
-            transition: background-color 1s ease, background-image 1s ease;
+            background-color: var(--c-900); /* Fallback */
         }
 
+        /* SUPER SMOOTH BACKGROUND LAYERS */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out; /* 1.5s Smooth Fade */
+        }
+        .bg-layer.active {
+            opacity: 1;
+        }
+
+        /* Glassmorphism Styles */
         .glass {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
         .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; }
 
+        /* Wheel UI */
         .wheel-container {
             position: fixed;
             top: 50%;
@@ -62,7 +70,7 @@
             width: 700px;
             height: 700px;
             border-radius: 50%;
-            border: 2px dashed rgba(255,255,255,0.15);
+            border: 2px dashed rgba(255,255,255,0.2);
             transform: translateY(-50%) rotate(0deg);
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
             pointer-events: none; 
@@ -72,7 +80,8 @@
             position: absolute;
             width: 80px;
             height: 80px;
-            background: var(--c-700);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -84,27 +93,29 @@
             text-align: center;
             cursor: pointer;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            border: 2px solid var(--c-400);
-            transition: all 0.3s ease;
+            border: 2px solid var(--c-500);
+            transition: all 0.4s ease;
             margin-top: -40px; 
             margin-left: -40px; 
             z-index: 50;
             pointer-events: auto; 
+            color: white;
         }
 
         .wheel-item:hover, .wheel-item.active {
-            background: var(--c-400);
+            background: white;
             color: var(--c-900);
-            transform: scale(1.15);
-            box-shadow: 0 0 25px var(--c-400);
+            transform: scale(1.2);
+            box-shadow: 0 0 30px var(--c-400);
+            border-color: white;
         }
 
+        /* Main Card Animations */
         .main-card-container {
             opacity: 0;
             transform: scale(0.9) translateX(30px);
-            transition: all 0.5s ease-out;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
         .main-card-container.active {
             opacity: 1;
             transform: scale(1) translateX(0);
@@ -113,23 +124,34 @@
         select {
             background-color: rgba(255,255,255,0.1);
             color: white;
-            border: 1px solid var(--c-400);
+            border: 1px solid var(--c-500);
             border-radius: 8px;
             padding: 8px 16px;
             outline: none;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
+        select:hover { border-color: var(--c-300); }
         select option { background-color: var(--c-900); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col relative">
 
+    <!-- 6 Pre-rendered Background Layers for Ultimate Smoothness (Hardware Accelerated) -->
+    <div id="bg-1" class="bg-layer active" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 10%, var(--c-800) 0%, transparent 60%), radial-gradient(circle at 90% 90%, var(--c-700) 0%, transparent 60%);"></div>
+    <div id="bg-2" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 15% 15%, var(--c-700) 0%, transparent 60%), radial-gradient(circle at 85% 85%, var(--c-600) 0%, transparent 60%);"></div>
+    <div id="bg-3" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 5% 20%, var(--c-600) 0%, transparent 65%), radial-gradient(circle at 95% 80%, var(--c-500) 0%, transparent 65%);"></div>
+    <div id="bg-4" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 20% 5%, var(--c-500) 0%, transparent 70%), radial-gradient(circle at 80% 95%, var(--c-400) 0%, transparent 70%);"></div>
+    <div id="bg-5" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 90%, var(--c-400) 0%, transparent 60%), radial-gradient(circle at 90% 10%, var(--c-300) 0%, transparent 60%);"></div>
+    <div id="bg-6" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 50% 10%, var(--c-800) 0%, transparent 70%), radial-gradient(circle at 50% 90%, var(--c-300) 0%, transparent 70%);"></div>
+
+    <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
         <div class="flex items-center space-x-4">
             <img src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
-                <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">Imo Chicken & Agro (Pvt) Ltd.</h1>
-                <p class="text-xs tracking-widest uppercase" style="color: var(--c-400);">KPI Monitoring Dashboard</p>
+                <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">IMO Chicken & Agro</h1>
+                <p class="text-xs tracking-widest uppercase" style="color: var(--c-300);">Performance Dashboard</p>
             </div>
         </div>
         
@@ -141,6 +163,7 @@
         </div>
     </header>
 
+    <!-- Navigation Wheel -->
     <div class="wheel-container">
         <div class="wheel" id="kpiWheel">
             <div class="wheel-item" data-angle="-75" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
@@ -152,31 +175,32 @@
         </div>
     </div>
 
+    <!-- Main Display -->
     <main class="flex-1 flex items-center justify-center pl-40 md:pl-64 p-8 z-10 relative">
-        <div id="mainDisplay" class="main-card-container glass w-full max-w-4xl rounded-[2rem] p-12 shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -mr-32 -mt-32 blur-3xl" style="background: var(--c-400);"></div>
+        <div id="mainDisplay" class="main-card-container glass w-full max-w-4xl rounded-[2rem] p-12 relative overflow-hidden" style="border-top: 5px solid var(--c-500);">
+            <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -mr-32 -mt-32 blur-3xl bg-white"></div>
             
             <div class="relative z-10">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
                     <h2 id="kpiTitle" class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 md:mb-0" style="color: var(--c-100);">Loading...</h2>
                     <div id="targetBadge" class="px-4 py-2 rounded-full text-sm font-bold tracking-wider hidden self-start">Target</div>
                 </div>
-                <p id="kpiDescription" class="text-lg mb-10 opacity-80" style="color: var(--c-200);">Please wait while data is being prepared.</p>
+                <p id="kpiDescription" class="text-lg mb-10 opacity-90 text-white">Please wait while data is being prepared.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="col-span-1 md:col-span-1 p-8 rounded-3xl glass border-t-4 flex flex-col justify-center items-center text-center" style="border-color: var(--c-400);">
+                    <div class="col-span-1 md:col-span-1 p-8 rounded-3xl glass flex flex-col justify-center items-center text-center">
                         <p id="mainMetricLabel" class="text-sm font-semibold uppercase tracking-widest mb-2" style="color: var(--c-300);">Rate</p>
-                        <p id="mainMetricValue" class="text-5xl md:text-6xl font-black" style="color: var(--c-100);">0%</p>
+                        <p id="mainMetricValue" class="text-5xl md:text-6xl font-black text-white">0%</p>
                     </div>
                     
                     <div class="col-span-1 md:col-span-2 flex flex-col justify-center space-y-6 md:pl-8">
                         <div class="glass p-5 rounded-2xl">
-                            <p id="subMetric1Label" class="text-xs uppercase tracking-wider opacity-70 mb-1" style="color: var(--c-200);">Metric 1</p>
-                            <p id="subMetric1Value" class="text-3xl font-bold" style="color: var(--c-100);">0</p>
+                            <p id="subMetric1Label" class="text-xs uppercase tracking-wider opacity-80 mb-1" style="color: var(--c-200);">Metric 1</p>
+                            <p id="subMetric1Value" class="text-3xl font-bold text-white">0</p>
                         </div>
                         <div class="glass p-5 rounded-2xl">
-                            <p id="subMetric2Label" class="text-xs uppercase tracking-wider opacity-70 mb-1" style="color: var(--c-200);">Metric 2</p>
-                            <p id="subMetric2Value" class="text-3xl font-bold" style="color: var(--c-100);">0</p>
+                            <p id="subMetric2Label" class="text-xs uppercase tracking-wider opacity-80 mb-1" style="color: var(--c-200);">Metric 2</p>
+                            <p id="subMetric2Value" class="text-3xl font-bold text-white">0</p>
                         </div>
                     </div>
                 </div>
@@ -193,17 +217,7 @@
 
         let gData = { salesReturn: [], issuedQty: [], shopReturn: [], repReport: [], forecast: [] };
         let activeKPI = 1;
-        let isInitialLoad = true; // Control variable to prevent resetting KPI
-
-        // Colors for Background Transitions
-        const bgColors = {
-            1: { main: "var(--c-900)", glow: "var(--c-800)" },
-            2: { main: "var(--c-800)", glow: "var(--c-700)" },
-            3: { main: "var(--c-900)", glow: "var(--c-600)" },
-            4: { main: "#023E8A", glow: "var(--c-500)" },
-            5: { main: "var(--c-900)", glow: "#0096C7" },
-            6: { main: "#03045E", glow: "var(--c-400)" }
-        };
+        let isInitialLoad = true; 
 
         const wheelRadius = 350; 
         document.querySelectorAll('.wheel-item').forEach(item => {
@@ -292,25 +306,20 @@
                 });
 
                 if(isInitialLoad) {
-                    // Logic: Auto-select Current System Month
                     const now = new Date();
                     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                     const currentYM = `${now.getFullYear()}-${monthNames[now.getMonth()]}`;
                     
-                    let foundCurrentMonth = false;
                     for (let i = 0; i < filter.options.length; i++) {
                         if (filter.options[i].value === currentYM) {
                             filter.selectedIndex = i;
-                            foundCurrentMonth = true;
                             break;
                         }
                     }
                     
-                    // Trigger first KPI automatically on initial load
                     selectKPI(1, document.querySelector('.wheel-item[data-kpi="1"]'));
                     isInitialLoad = false;
                 } else {
-                    // If just refreshing background data, only update calculations
                     filterData();
                 }
 
@@ -382,7 +391,7 @@
 
             let accuracy = 0;
             if (totalSold > 0) {
-                accuracy = (1 - (Math.abs(totalSold - totalForecast) / totalSold)) * 100;
+                accuracy = (1 - ((totalSold - totalForecast) / totalSold)) * 100;
             }
 
             document.getElementById('mainMetricValue').innerText = accuracy.toFixed(2) + '%';
@@ -397,9 +406,9 @@
         function selectKPI(id, element) {
             activeKPI = id;
 
-            // Update Background Colors Smoothly
-            document.documentElement.style.setProperty('--bg-color', bgColors[id].main);
-            document.documentElement.style.setProperty('--bg-glow', bgColors[id].glow);
+            // CROSS-FADING BACKGROUND ANIMATION (Hardware Accelerated = 100% Smooth)
+            document.querySelectorAll('.bg-layer').forEach(layer => layer.classList.remove('active'));
+            document.getElementById(`bg-${id}`).classList.add('active');
 
             document.querySelectorAll('.wheel-item').forEach(el => {
                 el.classList.remove('active');
@@ -458,12 +467,12 @@
         // Mouse Wheel Scroll Functionality
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
-            if (isScrolling) return; // Prevent rapid scrolling
+            if (isScrolling) return; 
             
             let nextId = activeKPI;
-            if (e.deltaY > 0) { // Scroll Down -> Next KPI
+            if (e.deltaY > 0) { 
                 nextId = activeKPI < 6 ? activeKPI + 1 : 1; 
-            } else if (e.deltaY < 0) { // Scroll Up -> Previous KPI
+            } else if (e.deltaY < 0) { 
                 nextId = activeKPI > 1 ? activeKPI - 1 : 6;
             }
 
@@ -472,15 +481,11 @@
                 const nextElement = document.querySelector(`.wheel-item[data-kpi="${nextId}"]`);
                 selectKPI(nextId, nextElement);
                 
-                // Wait for animation to finish before allowing next scroll
                 setTimeout(() => { isScrolling = false; }, 800); 
             }
         });
 
-        // Start App
         initData();
-        
-        // Auto Update Every 10 Minutes (600,000 milliseconds)
         setInterval(initData, 600000); 
 
     </script>
