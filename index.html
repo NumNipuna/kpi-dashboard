@@ -382,7 +382,7 @@
 
             let accuracy = 0;
             if (totalSold > 0) {
-                accuracy = (1 - (Math.abs(totalSold - totalForecast) / totalSold)) * 100;
+                accuracy = (1 - ((totalSold - totalForecast) / totalSold)) * 100;
             }
 
             document.getElementById('mainMetricValue').innerText = accuracy.toFixed(2) + '%';
