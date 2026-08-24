@@ -469,7 +469,28 @@
                 mainCard.classList.add('active'); 
             }, 400); 
         }
-
+        // --- Full Screen Logic ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                // Full screen ekata yanawa
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error: ${err.message}`);
+                });
+                document.getElementById('fsBtn').innerHTML = "⬅ Back to Streamlit";
+            } else {
+                // Full screen eken ain wenawa
+                document.exitFullscreen();
+                document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
+            }
+        }
+        
+        // Keyboard eke ESC obala full screen eken aawoth button eke nama wenas wenna
+        document.addEventListener('fullscreenchange', (event) => {
+            if (!document.fullscreenElement) {
+                document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
+            }
+        });
+        // -------------------------
         // Mouse Wheel Scroll Functionality
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
