@@ -195,6 +195,7 @@
         const URL_ISSUED_QTY   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=957766558&single=true&output=csv';
         const URL_SHOP_RETURN  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=856858213&single=true&output=csv';
         const URL_REP_REPORT   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=87908764&single=true&output=csv';
+        const URL_Rep_Weekly   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=1476771915&single=true&output=csv'
         const URL_FORECAST     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTXCD67RZNeYMDswTAZeNWu5WtFw3AbnaeovL5c_QWenvhyhKdtM_BjlLWrkC3HHeCmbswionYky09m/pub?gid=1755458034&single=true&output=csv';
 
         let gData = { salesReturn: [], issuedQty: [], shopReturn: [], repReport: [], forecast: [] };
@@ -270,7 +271,7 @@
                     fetch(URL_SALES_RETURN + ts),
                     fetch(URL_ISSUED_QTY + ts),
                     fetch(URL_SHOP_RETURN + ts),
-                    fetch(URL_REP_REPORT + ts),
+                    fetch(URL_Rep_Weekly + ts),
                     fetch(URL_FORECAST + ts)
                 ]);
 
