@@ -6,7 +6,6 @@
     <title>IMO Chicken & Agro - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Original Premium Blue Colors */
         :root {
             --c-900: #03045E;
             --c-800: #023E8A;
@@ -27,7 +26,6 @@
             background-color: var(--c-900);
         }
 
-        /* SUPER SMOOTH BACKGROUND LAYERS */
         .bg-layer {
             position: fixed;
             inset: 0;
@@ -39,7 +37,6 @@
             opacity: 1;
         }
 
-        /* Glassmorphism Styles */
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(25px);
@@ -51,15 +48,14 @@
         .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; }
 
-        /* --- ALUTH LINEAR MENU UI --- */
         .sidebar-menu {
             position: fixed;
             top: 50%;
-            left: 30px; /* Wam paththen thiyena ida */
+            left: 30px; 
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Buttons athara ida */
+            gap: 15px; 
             z-index: 40; 
         }
 
@@ -68,7 +64,7 @@
             padding: 12px 0;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 50px; /* Oval/Pill shape eka */
+            border-radius: 50px; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -85,13 +81,11 @@
         .menu-item:hover, .menu-item.active {
             background: white;
             color: var(--c-900);
-            transform: scale(1.1) translateX(15px); /* Select unama issarahata enawa */
+            transform: scale(1.1) translateX(15px); 
             box-shadow: 0 0 25px var(--c-400);
             border-color: white;
         }
-        /* --------------------------- */
 
-        /* Main Card Animations */
         .main-card-container {
             opacity: 0;
             transform: scale(0.9) translateX(30px);
@@ -118,7 +112,6 @@
 </head>
 <body class="min-h-screen flex flex-col relative">
 
-    <!-- Background Layers -->
     <div id="bg-1" class="bg-layer active" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 10%, var(--c-800) 0%, transparent 60%), radial-gradient(circle at 90% 90%, var(--c-700) 0%, transparent 60%);"></div>
     <div id="bg-2" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 15% 15%, var(--c-700) 0%, transparent 60%), radial-gradient(circle at 85% 85%, var(--c-600) 0%, transparent 60%);"></div>
     <div id="bg-3" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 5% 20%, var(--c-600) 0%, transparent 65%), radial-gradient(circle at 95% 80%, var(--c-500) 0%, transparent 65%);"></div>
@@ -128,8 +121,7 @@
 
     <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
-        
-        <!-- WAM PATHTHA: Logo & Company Name (Sidebar eka eddi meka hide wenawa) -->
+        <!-- Wam Paththa -->
         <div id="companyBranding" class="flex items-center space-x-4 transition-all duration-300">
             <img src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
@@ -138,8 +130,9 @@
             </div>
         </div>
         
-        <!-- DAKUNU PATHTHA: Dropdown & Full Screen Button -->
-        <div class="flex items-center space-x-4">
+        <!-- Dakunu Paththa (Filter ekai Button ekai kelawaratama gaththa) -->
+        <div class="flex items-center space-x-4 ml-auto">
+            <!-- 1. Month Filter Eka -->
             <div class="flex items-center space-x-4 glass px-6 py-3 rounded-full">
                 <span class="text-sm font-semibold" style="color: var(--c-200);">Period:</span>
                 <select id="monthFilter" onchange="filterData()">
@@ -147,13 +140,14 @@
                 </select>
             </div>
             
+            <!-- 2. Full Screen Button Eka -->
             <button onclick="toggleFullScreen()" id="fsBtn" class="glass px-4 py-3 rounded-lg text-sm font-bold text-white hover:bg-white hover:text-black transition cursor-pointer" style="border: 1px solid var(--c-400);">
                 ⛶ Full Screen
             </button>
         </div>
     </header>
 
-    <!-- NEW Linear Sidebar Menu -->
+    <!-- Linear Sidebar Menu -->
     <div class="sidebar-menu" id="kpiMenu">
         <div class="menu-item active" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
         <div class="menu-item" data-kpi="2" onclick="selectKPI(2, this)">ShRR%</div>
@@ -164,7 +158,6 @@
     </div>
 
     <!-- Main Display Area -->
-    <!-- pl-40 (wam paththin menu ekata idak) deela thiyenawa -->
     <main class="flex-1 flex items-center justify-center pl-[200px] p-8 z-10 relative">
         <div id="mainDisplay" class="main-card-container glass w-full max-w-5xl rounded-[2rem] p-12 relative overflow-hidden" style="border-top: 5px solid var(--c-500);">
             <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -mr-32 -mt-32 blur-3xl bg-white"></div>
@@ -206,23 +199,35 @@
 
         let gData = { salesReturn: [], issuedQty: [], shopReturn: [], repReport: [], forecast: [] };
         let activeKPI = 1;
-        let isInitialLoad = true;
+        let isInitialLoad = true; 
+        
+        // --- ALUTH: Logo Hide/Show Logic Eka ---
+        let isSidebarOpen = false;
 
-        // Streamlit eken ena Sidebar Signal eka allagena Logo eka hide/show kirima
-        window.addEventListener("message", (event) => {
-            if (event.data && typeof event.data.sidebarOpen === 'boolean') {
-                const branding = document.getElementById('companyBranding');
-                if (branding) {
-                    if (event.data.sidebarOpen) {
-                        branding.style.display = 'none'; // Sidebar open nam hide wenawa
-                    } else {
-                        branding.style.display = 'flex'; // Sidebar close nam show wenawa
-                    }
+        function updateBrandingVisibility() {
+            const branding = document.getElementById('companyBranding');
+            if (!branding) return;
+
+            if (document.fullscreenElement) {
+                // Full Screen ekedi Logo eka aniwaryayenma penna oni
+                branding.style.display = 'flex';
+            } else {
+                // Streamlit Mode ekedi Sidebar eka open nam Logo eka hide wenawa
+                if (isSidebarOpen) {
+                    branding.style.display = 'none';
+                } else {
+                    branding.style.display = 'flex';
                 }
             }
-        });
+        }
 
-        // Kalin thibba wheel math logic eka methanin ayin kara. (Menu item positions CSS eken hadana nisa awashya naha)
+        window.addEventListener("message", (event) => {
+            if (event.data && typeof event.data.sidebarOpen === 'boolean') {
+                isSidebarOpen = event.data.sidebarOpen;
+                updateBrandingVisibility();
+            }
+        });
+        // ----------------------------------------
 
         function parseCSVAdvanced(str) {
             const result = [];
@@ -401,17 +406,14 @@
         function selectKPI(id, element) {
             activeKPI = id;
 
-            // Background Fade
             document.querySelectorAll('.bg-layer').forEach(layer => layer.classList.remove('active'));
             document.getElementById(`bg-${id}`).classList.add('active');
 
-            // Set Active Menu Item Class
             document.querySelectorAll('.menu-item').forEach(el => {
                 el.classList.remove('active');
             });
             element.classList.add('active');
             
-            // Main Card Animation
             const mainCard = document.getElementById('mainDisplay');
             mainCard.classList.remove('active'); 
             
@@ -454,17 +456,19 @@
                 document.documentElement.requestFullscreen().catch(err => {
                     console.log(`Error: ${err.message}`);
                 });
-                document.getElementById('fsBtn').innerHTML = "⬅ Back to Streamlit";
             } else {
                 document.exitFullscreen();
-                document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
             }
         }
         
         document.addEventListener('fullscreenchange', (event) => {
             if (!document.fullscreenElement) {
                 document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
+            } else {
+                document.getElementById('fsBtn').innerHTML = "⬅ Back to Streamlit";
             }
+            // Full screen mode eka maru weddi logo eka thiyenna onida nadda kiyala aayeth check karanawa
+            updateBrandingVisibility();
         });
 
         // Mouse Wheel Scroll Functionality
