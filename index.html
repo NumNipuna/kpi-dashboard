@@ -128,10 +128,8 @@
 
     <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
+        <!-- Wam Paththe Logo eka saha Nama pamanai -->
         <div class="flex items-center space-x-4">
-            <button onclick="toggleFullScreen()" id="fsBtn" class="glass px-4 py-2 rounded-lg text-sm font-bold text-white hover:bg-white hover:text-black transition cursor-pointer" style="border: 1px solid var(--c-400);">
-                ⛶ Full Screen
-            </button>
             <img src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
                 <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">IMO Chicken & Agro</h1>
@@ -139,11 +137,19 @@
             </div>
         </div>
         
-        <div class="flex items-center space-x-4 glass px-6 py-3 rounded-full">
-            <span class="text-sm font-semibold" style="color: var(--c-200);">Period:</span>
-            <select id="monthFilter" onchange="filterData()">
-                <option value="all">Loading Data...</option>
-            </select>
+        <!-- Dakunu Paththe Dropdown eka saha Full Screen Button eka -->
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 glass px-6 py-3 rounded-full">
+                <span class="text-sm font-semibold" style="color: var(--c-200);">Period:</span>
+                <select id="monthFilter" onchange="filterData()">
+                    <option value="all">Loading Data...</option>
+                </select>
+            </div>
+            
+            <!-- DAKUNU PATHTHATA GENAPU FULL SCREEN BUTTON EKA -->
+            <button onclick="toggleFullScreen()" id="fsBtn" class="glass px-4 py-3 rounded-lg text-sm font-bold text-white hover:bg-white hover:text-black transition cursor-pointer" style="border: 1px solid var(--c-400);">
+                ⛶ Full Screen
+            </button>
         </div>
     </header>
 
