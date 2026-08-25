@@ -404,19 +404,22 @@
         function calculateSFA(ym) {
             let totalForecast = 0, totalSold = 0;
 
-            // "2026-August" wage thiyena eka "2026-08" format ekata harawana logic eka
             const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
             const [year, monthName] = ym.split('-');
-            const targetDate = `${year}-${monthMap[monthName] || monthName}`;
+            const targetDate = `${year}-${monthMap[monthName] || monthName}`; // Ex: "2026-08"
 
-            // Forecast Qty eka gannawa
             gData.forecast.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalForecast += parseFloat(r[4]) || 0; });
             
-            // Rep_Weekly tab eke A col (r[0]) eka "2026-08" nam, H col (r[7]) sum karanawa
+            // Rep_Weekly tab eke data ganna aluth logic eka
             gData.repReport.forEach(r => { 
-                if(r[0] && r[0].trim() === targetDate) {
-                    totalSold += parseFloat(r[7]) || 0; 
-                } 
+                if (r.length > 7 && r[0]) {
+                    let dateStr = r[0].toString().trim();
+                    // "2026-08" kiyana kotasa date eke thiyenawada kiyala check karanawa
+                    if (dateStr.includes(targetDate) || getYMFromDateStr(dateStr) === ym) {
+                        let valStr = r[7] ? r[7].toString().replace(/,/g, '').trim() : "0";
+                        totalSold += parseFloat(valStr) || 0;
+                    }
+                }
             });
 
             let accuracy = 0;
