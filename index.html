@@ -24,7 +24,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden; 
             margin: 0;
-            background-color: var(--c-900); /* Fallback */
+            background-color: var(--c-900);
         }
 
         /* SUPER SMOOTH BACKGROUND LAYERS */
@@ -33,7 +33,7 @@
             inset: 0;
             z-index: 0;
             opacity: 0;
-            transition: opacity 1.5s ease-in-out; /* 1.5s Smooth Fade */
+            transition: opacity 1.5s ease-in-out; 
         }
         .bg-layer.active {
             opacity: 1;
@@ -51,64 +51,45 @@
         .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; }
 
-        /* Wheel UI */
-        .wheel-container {
+        /* --- ALUTH LINEAR MENU UI --- */
+        .sidebar-menu {
             position: fixed;
             top: 50%;
-            left: 0;
+            left: 30px; /* Wam paththen thiyena ida */
             transform: translateY(-50%);
-            width: 500px;
-            height: 800px;
-            pointer-events: none; 
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Buttons athara ida */
             z-index: 40; 
         }
 
-        .wheel {
-            position: absolute;
-            top: 50%;
-            left: -350px; 
-            width: 700px;
-            height: 700px;
-            border-radius: 50%;
-            border: 2px dashed rgba(255,255,255,0.2);
-            transform: translateY(-50%) rotate(0deg);
-            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            pointer-events: none; 
-        }
-
-        .wheel-item {
-            position: absolute;
-            width: 80px;
-            height: 80px;
+        .menu-item {
+            width: 140px;
+            padding: 12px 0;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
+            border-radius: 50px; /* Oval/Pill shape eka */
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.85rem;
-            text-align: center;
+            font-size: 0.9rem;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             border: 2px solid var(--c-500);
-            transition: all 0.4s ease;
-            margin-top: -40px; 
-            margin-left: -40px; 
-            z-index: 50;
-            pointer-events: auto; 
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             color: white;
+            position: relative;
         }
 
-        .wheel-item:hover, .wheel-item.active {
+        .menu-item:hover, .menu-item.active {
             background: white;
             color: var(--c-900);
-            transform: scale(1.2);
-            box-shadow: 0 0 30px var(--c-400);
+            transform: scale(1.1) translateX(15px); /* Select unama issarahata enawa */
+            box-shadow: 0 0 25px var(--c-400);
             border-color: white;
         }
+        /* --------------------------- */
 
         /* Main Card Animations */
         .main-card-container {
@@ -137,7 +118,7 @@
 </head>
 <body class="min-h-screen flex flex-col relative">
 
-    <!-- 6 Pre-rendered Background Layers for Ultimate Smoothness (Hardware Accelerated) -->
+    <!-- Background Layers -->
     <div id="bg-1" class="bg-layer active" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 10%, var(--c-800) 0%, transparent 60%), radial-gradient(circle at 90% 90%, var(--c-700) 0%, transparent 60%);"></div>
     <div id="bg-2" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 15% 15%, var(--c-700) 0%, transparent 60%), radial-gradient(circle at 85% 85%, var(--c-600) 0%, transparent 60%);"></div>
     <div id="bg-3" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 5% 20%, var(--c-600) 0%, transparent 65%), radial-gradient(circle at 95% 80%, var(--c-500) 0%, transparent 65%);"></div>
@@ -148,12 +129,9 @@
     <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
         <div class="flex items-center space-x-4">
-            
-            <!-- ALUTH FULL SCREEN BUTTON EKA -->
             <button onclick="toggleFullScreen()" id="fsBtn" class="glass px-4 py-2 rounded-lg text-sm font-bold text-white hover:bg-white hover:text-black transition cursor-pointer" style="border: 1px solid var(--c-400);">
                 ⛶ Full Screen
             </button>
-
             <img src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
                 <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">IMO Chicken & Agro</h1>
@@ -169,21 +147,20 @@
         </div>
     </header>
 
-    <!-- Navigation Wheel -->
-    <div class="wheel-container">
-        <div class="wheel" id="kpiWheel">
-            <div class="wheel-item" data-angle="-75" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
-            <div class="wheel-item" data-angle="-45" data-kpi="2" onclick="selectKPI(2, this)">ShRR%</div>
-            <div class="wheel-item" data-angle="-15" data-kpi="3" onclick="selectKPI(3, this)">SFA%</div>
-            <div class="wheel-item" data-angle="15" data-kpi="4" onclick="selectKPI(4, this)">KPI 4</div>
-            <div class="wheel-item" data-angle="45" data-kpi="5" onclick="selectKPI(5, this)">KPI 5</div>
-            <div class="wheel-item" data-angle="75" data-kpi="6" onclick="selectKPI(6, this)">KPI 6</div>
-        </div>
+    <!-- NEW Linear Sidebar Menu -->
+    <div class="sidebar-menu" id="kpiMenu">
+        <div class="menu-item active" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
+        <div class="menu-item" data-kpi="2" onclick="selectKPI(2, this)">ShRR%</div>
+        <div class="menu-item" data-kpi="3" onclick="selectKPI(3, this)">SFA%</div>
+        <div class="menu-item" data-kpi="4" onclick="selectKPI(4, this)">KPI 4</div>
+        <div class="menu-item" data-kpi="5" onclick="selectKPI(5, this)">KPI 5</div>
+        <div class="menu-item" data-kpi="6" onclick="selectKPI(6, this)">KPI 6</div>
     </div>
 
-    <!-- Main Display -->
-    <main class="flex-1 flex items-center justify-center pl-40 md:pl-64 p-8 z-10 relative">
-        <div id="mainDisplay" class="main-card-container glass w-full max-w-4xl rounded-[2rem] p-12 relative overflow-hidden" style="border-top: 5px solid var(--c-500);">
+    <!-- Main Display Area -->
+    <!-- pl-40 (wam paththin menu ekata idak) deela thiyenawa -->
+    <main class="flex-1 flex items-center justify-center pl-[200px] p-8 z-10 relative">
+        <div id="mainDisplay" class="main-card-container glass w-full max-w-5xl rounded-[2rem] p-12 relative overflow-hidden" style="border-top: 5px solid var(--c-500);">
             <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -mr-32 -mt-32 blur-3xl bg-white"></div>
             
             <div class="relative z-10">
@@ -225,15 +202,7 @@
         let activeKPI = 1;
         let isInitialLoad = true; 
 
-        const wheelRadius = 350; 
-        document.querySelectorAll('.wheel-item').forEach(item => {
-            const angleDeg = parseFloat(item.getAttribute('data-angle'));
-            const angleRad = angleDeg * (Math.PI / 180);
-            const x = Math.cos(angleRad) * wheelRadius;
-            const y = Math.sin(angleRad) * wheelRadius;
-            item.style.transform = `translate(${x}px, ${y}px) rotate(${-angleDeg}deg)`;
-            item.dataset.baseTransform = `translate(${x}px, ${y}px)`; 
-        });
+        // Kalin thibba wheel math logic eka methanin ayin kara. (Menu item positions CSS eken hadana nisa awashya naha)
 
         function parseCSVAdvanced(str) {
             const result = [];
@@ -323,7 +292,7 @@
                         }
                     }
                     
-                    selectKPI(1, document.querySelector('.wheel-item[data-kpi="1"]'));
+                    selectKPI(1, document.querySelector('.menu-item[data-kpi="1"]'));
                     isInitialLoad = false;
                 } else {
                     filterData();
@@ -412,28 +381,17 @@
         function selectKPI(id, element) {
             activeKPI = id;
 
-            // CROSS-FADING BACKGROUND ANIMATION (Hardware Accelerated = 100% Smooth)
+            // Background Fade
             document.querySelectorAll('.bg-layer').forEach(layer => layer.classList.remove('active'));
             document.getElementById(`bg-${id}`).classList.add('active');
 
-            document.querySelectorAll('.wheel-item').forEach(el => {
+            // Set Active Menu Item Class
+            document.querySelectorAll('.menu-item').forEach(el => {
                 el.classList.remove('active');
-                el.style.transform = el.dataset.baseTransform + ` rotate(${document.getElementById('kpiWheel').dataset.currentRotation || 0}deg)`; 
             });
-            
             element.classList.add('active');
             
-            const angleToRotate = -parseFloat(element.getAttribute('data-angle'));
-            const wheel = document.getElementById('kpiWheel');
-            wheel.style.transform = `translateY(-50%) rotate(${angleToRotate}deg)`;
-            wheel.dataset.currentRotation = angleToRotate; 
-
-            document.querySelectorAll('.wheel-item').forEach(el => {
-                const originalAngle = parseFloat(el.getAttribute('data-angle'));
-                el.style.transform = el.dataset.baseTransform + ` rotate(${-(angleToRotate + originalAngle)}deg)`;
-                if(el.classList.contains('active')) el.style.transform += ' scale(1.15)'; 
-            });
-
+            // Main Card Animation
             const mainCard = document.getElementById('mainDisplay');
             mainCard.classList.remove('active'); 
             
@@ -469,28 +427,26 @@
                 mainCard.classList.add('active'); 
             }, 400); 
         }
+
         // --- Full Screen Logic ---
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
-                // Full screen ekata yanawa
                 document.documentElement.requestFullscreen().catch(err => {
                     console.log(`Error: ${err.message}`);
                 });
                 document.getElementById('fsBtn').innerHTML = "⬅ Back to Streamlit";
             } else {
-                // Full screen eken ain wenawa
                 document.exitFullscreen();
                 document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
             }
         }
         
-        // Keyboard eke ESC obala full screen eken aawoth button eke nama wenas wenna
         document.addEventListener('fullscreenchange', (event) => {
             if (!document.fullscreenElement) {
                 document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
             }
         });
-        // -------------------------
+
         // Mouse Wheel Scroll Functionality
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
@@ -505,7 +461,7 @@
 
             if (nextId !== activeKPI) {
                 isScrolling = true;
-                const nextElement = document.querySelector(`.wheel-item[data-kpi="${nextId}"]`);
+                const nextElement = document.querySelector(`.menu-item[data-kpi="${nextId}"]`);
                 selectKPI(nextId, nextElement);
                 
                 setTimeout(() => { isScrolling = false; }, 800); 
