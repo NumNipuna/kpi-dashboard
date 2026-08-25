@@ -371,19 +371,23 @@
         function calculateShRR(ym) {
             let totalShopReturn = 0, totalSold = 0;
             
-            // "2026-August" wage thiyena eka "2026-08" format ekata harawana logic eka
             const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
             const [year, monthName] = ym.split('-');
             const targetDate = `${year}-${monthMap[monthName] || monthName}`; // Ex: "2026-08"
 
-            // Shop Return Qty eka gannawa
             gData.shopReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalShopReturn += parseFloat(r[3]) || 0; });
             
-            // Rep_Weekly tab eke A col (r[0]) eka "2026-08" nam, H col (r[7]) sum karanawa
+            // Rep_Weekly tab eke data ganna aluth logic eka
             gData.repReport.forEach(r => { 
-                if(r[0] && r[0].trim() === targetDate) {
-                    totalSold += parseFloat(r[7]) || 0; 
-                } 
+                // Row eke H column (index 7) wenakam data thiyenawada kiyala check karanawa
+                if (r.length > 7 && r[0]) {
+                    let dateStr = r[0].toString().trim();
+                    // "2026-08" kiyana kotasa date eke thiyenawada kiyala check karanawa (eg: 2026-08-15 thibbath wada karanawa)
+                    if (dateStr.includes(targetDate) || getYMFromDateStr(dateStr) === ym) {
+                        let valStr = r[7] ? r[7].toString().replace(/,/g, '').trim() : "0";
+                        totalSold += parseFloat(valStr) || 0;
+                    }
+                }
             });
 
             const rate = totalSold > 0 ? ((totalShopReturn / totalSold) * 100) : 0;
