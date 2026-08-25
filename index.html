@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMO Chicken & Agro - Dashboard</title>
@@ -169,22 +170,32 @@
                 </div>
                 <p id="kpiDescription" class="text-lg mb-10 opacity-90 text-white">Please wait while data is being prepared.</p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="col-span-1 md:col-span-1 p-8 rounded-3xl glass flex flex-col justify-center items-center text-center">
-                        <p id="mainMetricLabel" class="text-sm font-semibold uppercase tracking-widest mb-2" style="color: var(--c-300);">Rate</p>
-                        <p id="mainMetricValue" class="text-5xl md:text-6xl font-black text-white">0%</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                    <!-- Wam Paththe KPI Values (Size Podi Kara) -->
+                    <div class="col-span-1 flex flex-col space-y-4">
+                        <div class="p-6 rounded-3xl glass flex flex-col justify-center items-center text-center">
+                            <p id="mainMetricLabel" class="text-[11px] font-semibold uppercase tracking-widest mb-1" style="color: var(--c-300);">Rate</p>
+                            <p id="mainMetricValue" class="text-4xl md:text-5xl font-black text-white">0%</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl flex flex-col justify-center">
+                            <p id="subMetric1Label" class="text-[10px] uppercase tracking-wider opacity-80 mb-1" style="color: var(--c-200);">Metric 1</p>
+                            <p id="subMetric1Value" class="text-2xl font-bold text-white">0</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl flex flex-col justify-center">
+                            <p id="subMetric2Label" class="text-[10px] uppercase tracking-wider opacity-80 mb-1" style="color: var(--c-200);">Metric 2</p>
+                            <p id="subMetric2Value" class="text-2xl font-bold text-white">0</p>
+                        </div>
                     </div>
                     
-                    <div class="col-span-1 md:col-span-2 flex flex-col justify-center space-y-6 md:pl-8">
-                        <div class="glass p-5 rounded-2xl">
-                            <p id="subMetric1Label" class="text-xs uppercase tracking-wider opacity-80 mb-1" style="color: var(--c-200);">Metric 1</p>
-                            <p id="subMetric1Value" class="text-3xl font-bold text-white">0</p>
-                        </div>
-                        <div class="glass p-5 rounded-2xl">
-                            <p id="subMetric2Label" class="text-xs uppercase tracking-wider opacity-80 mb-1" style="color: var(--c-200);">Metric 2</p>
-                            <p id="subMetric2Value" class="text-3xl font-bold text-white">0</p>
+                    <!-- Dakunu Paththe Graph Eka -->
+                    <div class="col-span-2 glass p-4 rounded-3xl flex flex-col w-full h-[320px] relative">
+                        <h3 class="text-xs font-bold tracking-widest uppercase opacity-80 mb-2 pl-2" style="color: var(--c-100);">Monthly Trend</h3>
+                        <div class="w-full flex-1 relative">
+                            <!-- Graph eka load wenne me canvas eke -->
+                            <canvas id="trendChart"></canvas>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -367,6 +378,30 @@
             document.getElementById('subMetric2Value').innerText = totalReturn.toLocaleString();
 
             setTargetBadge(rate < 4, `Target: < 4% | Actual: ${rate.toFixed(2)}%`);
+
+            let chartLabels = [];
+            let chartData = [];
+            
+            // monthFilter dropdown eke thiyena masa tika piliwelata gannawa (parana mase idala aluth maseta)
+            const allMonths = Array.from(document.getElementById('monthFilter').options)
+                                   .map(opt => opt.value)
+                                   .filter(val => val !== 'all' && val !== '')
+                                   .reverse(); 
+    
+            allMonths.forEach(m => {
+                let tIss = 0, tRet = 0;
+                gData.issuedQty.forEach(r => { if(`${r[0]}-${r[1]}` === m) tIss += parseFloat(r[3]) || 0; });
+                gData.salesReturn.forEach(r => { if(`${r[0]}-${r[1]}` === m) tRet += parseFloat(r[3]) || 0; });
+                
+                let mRate = tIss > 0 ? ((tRet / tIss) * 100) : 0;
+                
+                // X axis ekata mase nama (Eg: Aug), Y axis ekata rate eka
+                chartLabels.push(m.split('-')[1].substring(0,3)); 
+                chartData.push(mRate.toFixed(2));
+            });
+    
+            // Chart eka Draw karanna call karanawa
+            drawChart(chartLabels, chartData, 'SRR %', '#48CAE4');
         }
 
         function calculateShRR(ym) {
@@ -527,7 +562,56 @@
         });
 
         initData();
-        setInterval(initData, 600000); 
+        setInterval(initData, 600000);
+
+        let kpiChart = null; // Global variable to hold the chart
+
+        function drawChart(labels, dataPoints, labelName, lineColor) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            // Kalin chart ekak thibba nam eka makala danna (KPI maru weddi overlap wenna nathi wenna)
+            if(kpiChart) { kpiChart.destroy(); }
+
+            kpiChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels, // X axis (Months)
+                    datasets: [{
+                        label: labelName,
+                        data: dataPoints, // Y axis (Rates)
+                        borderColor: lineColor, 
+                        backgroundColor: 'rgba(255,255,255,0.05)', // Podi glow ekak
+                        borderWidth: 4,
+                        tension: 0.4, // 🔴 MEKEN THAMA SMOOTH ROUND LINE EKA HADENNE
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: lineColor,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000, // Thathpara 2k athulatha line eka adila yanawa
+                        easing: 'easeOutQuart'
+                    },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                            ticks: { color: '#CAF0F8' },
+                            beginAtZero: true
+                        },
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { color: '#CAF0F8' } 
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
 
     </script>
 </body>
