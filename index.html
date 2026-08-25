@@ -206,7 +206,21 @@
 
         let gData = { salesReturn: [], issuedQty: [], shopReturn: [], repReport: [], forecast: [] };
         let activeKPI = 1;
-        let isInitialLoad = true; 
+        let isInitialLoad = true;
+
+        // Streamlit eken ena Sidebar Signal eka allagena Logo eka hide/show kirima
+        window.addEventListener("message", (event) => {
+            if (event.data && typeof event.data.sidebarOpen === 'boolean') {
+                const branding = document.getElementById('companyBranding');
+                if (branding) {
+                    if (event.data.sidebarOpen) {
+                        branding.style.display = 'none'; // Sidebar open nam hide wenawa
+                    } else {
+                        branding.style.display = 'flex'; // Sidebar close nam show wenawa
+                    }
+                }
+            }
+        });
 
         // Kalin thibba wheel math logic eka methanin ayin kara. (Menu item positions CSS eken hadana nisa awashya naha)
 
