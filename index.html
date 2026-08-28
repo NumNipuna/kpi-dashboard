@@ -531,6 +531,19 @@
                 document.exitFullscreen();
             }
         }
+        document.addEventListener('fullscreenchange', () => {
+            const logo = document.getElementById('mainLogo');
+            
+            if (!document.fullscreenElement) {
+                document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
+                // Full screen eken eliyata eddi logo eka hide karanawa
+                logo.classList.add('hidden');
+            } else {
+                document.getElementById('fsBtn').innerHTML = "⬅ Exit Full Screen";
+                // Full screen giyama logo eka pennanawa
+                logo.classList.remove('hidden');
+            }
+        });
         
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
