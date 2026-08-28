@@ -487,27 +487,17 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    // Meken line eka smooth widiyata draw wela enawa
                     animation: {
                         x: {
                             type: 'number',
-                            easing: 'linear',
-                            duration: delayBetweenPoints,
+                            easing: 'easeInOutSine', // Linear nethuwa Sine damma smooth wenna
+                            duration: 2000 / dataPoints.length,
                             from: NaN, 
                             delay(ctx) {
                                 if (ctx.type !== 'data' || ctx.xStarted) return 0;
                                 ctx.xStarted = true;
-                                return ctx.index * delayBetweenPoints;
-                            }
-                        },
-                        y: {
-                            type: 'number',
-                            easing: 'linear',
-                            duration: delayBetweenPoints,
-                            from: previousY,
-                            delay(ctx) {
-                                if (ctx.type !== 'data' || ctx.yStarted) return 0;
-                                ctx.yStarted = true;
-                                return ctx.index * delayBetweenPoints;
+                                return ctx.index * (2000 / dataPoints.length);
                             }
                         }
                     },
