@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMO Chicken & Agro - Dashboard</title>
+    <title>KPI Performance Dashboard</title>
+    
     <!-- Chart.js for smooth line graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    
     <style>
         :root {
             --c-900: #03045E;
@@ -28,6 +33,7 @@
             background-color: var(--c-900);
         }
 
+        /* Smooth Background Transitions */
         .bg-layer {
             position: fixed;
             inset: 0;
@@ -39,6 +45,7 @@
             opacity: 1;
         }
 
+        /* Glassmorphism Effect */
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(25px);
@@ -47,9 +54,11 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
+        /* Status Badges */
         .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171; }
 
+        /* Sidebar Styling */
         .sidebar-menu {
             position: fixed;
             top: 50%;
@@ -62,7 +71,7 @@
         }
 
         .menu-item {
-            width: 140px;
+            width: 150px;
             padding: 12px 0;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -115,20 +124,18 @@
 </head>
 <body class="min-h-screen flex flex-col relative">
 
+    <!-- Morphing Background Layers -->
     <div id="bg-1" class="bg-layer active" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 10%, var(--c-800) 0%, transparent 60%), radial-gradient(circle at 90% 90%, var(--c-700) 0%, transparent 60%);"></div>
     <div id="bg-2" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 15% 15%, var(--c-700) 0%, transparent 60%), radial-gradient(circle at 85% 85%, var(--c-600) 0%, transparent 60%);"></div>
     <div id="bg-3" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 5% 20%, var(--c-600) 0%, transparent 65%), radial-gradient(circle at 95% 80%, var(--c-500) 0%, transparent 65%);"></div>
     <div id="bg-4" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 20% 5%, var(--c-500) 0%, transparent 70%), radial-gradient(circle at 80% 95%, var(--c-400) 0%, transparent 70%);"></div>
-    <div id="bg-5" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 90%, var(--c-400) 0%, transparent 60%), radial-gradient(circle at 90% 10%, var(--c-300) 0%, transparent 60%);"></div>
-    <div id="bg-6" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 50% 10%, var(--c-800) 0%, transparent 70%), radial-gradient(circle at 50% 90%, var(--c-300) 0%, transparent 70%);"></div>
 
     <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
         <div id="companyBranding" class="flex items-center space-x-4 transition-all duration-300">
-            <img src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
-                <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">IMO Chicken & Agro</h1>
-                <p class="text-xs tracking-widest uppercase" style="color: var(--c-300);">Performance Dashboard</p>
+                <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">Live Data Dashboard</h1>
+                <p class="text-xs tracking-widest uppercase" style="color: var(--c-300);">KPI Performance Tracker</p>
             </div>
         </div>
         
@@ -147,16 +154,13 @@
 
     <!-- Linear Sidebar Menu -->
     <div class="sidebar-menu" id="kpiMenu">
-        <div class="menu-item active" data-kpi="1" onclick="selectKPI(1, this)">SRR%</div>
-        <div class="menu-item" data-kpi="2" onclick="selectKPI(2, this)">ShRR%</div>
-        <div class="menu-item" data-kpi="3" onclick="selectKPI(3, this)">SFA%</div>
-        <div class="menu-item" data-kpi="4" onclick="selectKPI(4, this)">KPI 4</div>
-        <div class="menu-item" data-kpi="5" onclick="selectKPI(5, this)">KPI 5</div>
-        <div class="menu-item" data-kpi="6" onclick="selectKPI(6, this)">KPI 6</div>
+        <div class="menu-item active" data-kpi="1" onclick="selectKPI(1, this)">Sales Return</div>
+        <div class="menu-item" data-kpi="2" onclick="selectKPI(2, this)">Shop Return</div>
+        <div class="menu-item" data-kpi="3" onclick="selectKPI(3, this)">Forecast Acc.</div>
+        <div class="menu-item" data-kpi="4" onclick="selectKPI(4, this)">Invoice Acc.</div>
     </div>
 
-    <!-- MAIN DISPLAY AREA (Split into 2 Cards: KPI & Chart) -->
-    <!-- Menu ekata idak deela (pl-[180px]) grid eka hadala thiyenawa -->
+    <!-- MAIN DISPLAY AREA -->
     <main class="flex-1 flex flex-col lg:flex-row items-stretch justify-center pl-[180px] p-8 z-10 relative gap-6 w-full max-w-[1600px] mx-auto">
         
         <!-- CARD 1: KPI DATA (1/3 Width) -->
@@ -167,7 +171,7 @@
                 <h2 id="kpiTitle" class="text-3xl font-extrabold tracking-tight mb-2" style="color: var(--c-100);">Loading...</h2>
                 <div id="targetBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 hidden">Target</div>
                 
-                <p id="kpiDescription" class="text-sm mb-8 opacity-80 text-white">Please wait while data is being prepared.</p>
+                <p id="kpiDescription" class="text-sm mb-8 opacity-80 text-white">Please wait while data is being fetched.</p>
                 
                 <div class="flex flex-col space-y-4">
                     <!-- Main Metric -->
@@ -193,7 +197,7 @@
         <!-- CARD 2: TREND GRAPH (2/3 Width) -->
         <div id="graphDisplay" class="card-animate glass w-full lg:w-2/3 rounded-[2rem] p-8 relative overflow-hidden flex flex-col" style="border-top: 5px solid var(--c-400);">
             <div class="flex justify-between items-center mb-4 relative z-10">
-                <h3 id="chartTitle" class="text-xl font-bold tracking-wide" style="color: var(--c-100);">Historical Trend (Last 12 Months)</h3>
+                <h3 id="chartTitle" class="text-xl font-bold tracking-wide" style="color: var(--c-100);">Historical Trend</h3>
                 <span class="text-xs opacity-70 glass px-3 py-1 rounded-full" style="color: white;">Monthly View</span>
             </div>
             
@@ -205,157 +209,89 @@
     </main>
 
     <script>
-        const URL_SALES_RETURN = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=287547461&single=true&output=csv';
-        const URL_ISSUED_QTY   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=957766558&single=true&output=csv';
-        const URL_SHOP_RETURN  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=856858213&single=true&output=csv';
-        const URL_REP_REPORT   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=87908764&single=true&output=csv';
-        const URL_Rep_Weekly   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRhXYa1mHKdqGCAI5xwLIZG62RUsnUVlE9V93tXkzBjWaFZ1Gwhyz0vJRrMgUFwaZ0zzNGGMZkeP9jd/pub?gid=1476771915&single=true&output=csv';
-        const URL_FORECAST     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTXCD67RZNeYMDswTAZeNWu5WtFw3AbnaeovL5c_QWenvhyhKdtM_BjlLWrkC3HHeCmbswionYky09m/pub?gid=1755458034&single=true&output=csv';
+        // Oyage ekama Google Sheet CSV link eka
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?gid=291083279&single=true&output=csv";
 
-        let gData = { salesReturn: [], issuedQty: [], shopReturn: [], repReport: [], forecast: [] };
+        let parsedData = [];
         let activeKPI = 1;
-        let isInitialLoad = true; 
-        
-        let isSidebarOpen = false;
+        let kpiChart = null; 
 
-        function updateBrandingVisibility() {
-            const branding = document.getElementById('companyBranding');
-            if (!branding) return;
+        const kpiDetails = {
+            1: { title: "Sales Return Rate", desc: "Percentage of sales return compared to issued quantity.", target: 4, type: "<" },
+            2: { title: "Shop Return Rate", desc: "Percentage of shop return compared to sold quantity.", target: 1, type: "<" },
+            3: { title: "Sales Forecast Accuracy", desc: "How accurately the actual sales match the forecast.", target: 98, type: ">" },
+            4: { title: "Invoice & Receipt Accuracy", desc: "Accuracy rate of invoices and receipts processed.", target: 99, type: ">" }
+        };
 
-            if (document.fullscreenElement) {
-                branding.style.display = 'flex';
-            } else {
-                if (isSidebarOpen) {
-                    branding.style.display = 'none';
-                } else {
-                    branding.style.display = 'flex';
+        // Initialize and Fetch Data
+        function initData() {
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: false,
+                complete: function(results) {
+                    processCSVData(results.data);
                 }
-            }
+            });
         }
 
-        window.addEventListener("message", (event) => {
-            if (event.data && typeof event.data.sidebarOpen === 'boolean') {
-                isSidebarOpen = event.data.sidebarOpen;
-                updateBrandingVisibility();
-            }
-        });
+        function processCSVData(rows) {
+            parsedData = [];
+            const monthFilter = document.getElementById('monthFilter');
+            monthFilter.innerHTML = '';
 
-        function parseCSVAdvanced(str) {
-            const result = [];
-            const lines = str.split('\n');
-            for(let line of lines) {
-                if(!line.trim()) continue;
-                let arr = [];
-                let inQuotes = false;
-                let val = '';
-                for(let i=0; i<line.length; i++) {
-                    let char = line[i];
-                    if(char === '"' && line[i+1] === '"') { val += '"'; i++; } 
-                    else if(char === '"') { inQuotes = !inQuotes; }
-                    else if(char === ',' && !inQuotes) { arr.push(val); val = ''; }
-                    else { val += char; }
-                }
-                arr.push(val);
-                result.push(arr.map(v => v.trim().replace(/^"|"$/g, '').replace(/,/g, ''))); 
-            }
-            return result.slice(1); 
-        }
+            // Assuming data starts at row 2 (index 2)
+            for (let i = 2; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row[0]) continue; 
 
-        function getYMFromDateStr(dStr) {
-            if(!dStr) return "";
-            let d = new Date(dStr);
-            if(isNaN(d) && dStr.includes('/')) {
-                let p = dStr.split(/[/-]/);
-                if(p.length === 3) d = new Date(`${p[2]}-${p[1]}-${p[0]}`); 
-            }
-            if(!isNaN(d)) {
-                return `${d.getFullYear()}-${d.toLocaleString('default', { month: 'long' })}`;
-            }
-            return "";
-        }
-
-        // Helper string to convert Month Name to Date Value for sorting Chronologically
-        function parseYMToDate(ym) {
-            const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
-            const [year, month] = ym.split('-');
-            return new Date(`${year}-${monthMap[month] || month}-01`);
-        }
-
-        async function initData() {
-            try {
-                const ts = '&t=' + new Date().getTime();
-                const [resSR, resIQ, resShR, resRR, resFc] = await Promise.all([
-                    fetch(URL_SALES_RETURN + ts),
-                    fetch(URL_ISSUED_QTY + ts),
-                    fetch(URL_SHOP_RETURN + ts),
-                    fetch(URL_Rep_Weekly + ts),
-                    fetch(URL_FORECAST + ts)
-                ]);
-
-                gData.salesReturn = parseCSVAdvanced(await resSR.text());
-                gData.issuedQty   = parseCSVAdvanced(await resIQ.text());
-                gData.shopReturn  = parseCSVAdvanced(await resShR.text());
-                gData.repReport   = parseCSVAdvanced(await resRR.text());
-                gData.forecast    = parseCSVAdvanced(await resFc.text());
-
-                const monthSet = new Set();
-                [gData.salesReturn, gData.issuedQty, gData.shopReturn, gData.forecast].forEach(dataset => {
-                    dataset.forEach(row => { if(row[0] && row[1]) monthSet.add(`${row[0]}-${row[1]}`.trim()); });
-                });
-                gData.repReport.forEach(row => {
-                    let ym = getYMFromDateStr(row[0]);
-                    if(ym) monthSet.add(ym);
-                });
-
-                const filter = document.getElementById('monthFilter');
-                filter.innerHTML = ''; 
+                const monthStr = `${row[0]} ${row[1]}`; // e.g. "2026 April"
                 
-                // Sort Descending for Dropdown (Newest First)
-                const sortedMonths = Array.from(monthSet).sort((a,b) => parseYMToDate(b) - parseYMToDate(a)); 
-                
-                if(sortedMonths.length === 0) {
-                    filter.innerHTML = '<option value="">No Data Found</option>';
-                    return;
-                }
+                // Helper to clean numbers and percentages
+                const getNum = (val) => {
+                    if (!val || val === '-') return null;
+                    return parseFloat(val.toString().replace(/,/g, '').replace('%', ''));
+                };
 
-                sortedMonths.forEach(ym => {
-                    const opt = document.createElement('option');
-                    opt.value = ym;
-                    opt.textContent = ym.replace('-', ' ');
-                    filter.appendChild(opt);
+                const srrRate = getNum(row[4]);
+                const shopRate = getNum(row[7]);
+                
+                // Skip future empty rows
+                if (srrRate === null && shopRate === null) continue;
+
+                parsedData.push({
+                    month: monthStr,
+                    srr: { rate: srrRate, retQty: getNum(row[2]), issQty: getNum(row[3]) },
+                    shop: { rate: shopRate, retQty: getNum(row[5]), soldQty: getNum(row[6]) },
+                    forecast: { rate: getNum(row[10]), actual: getNum(row[8]), forecast: getNum(row[9]) },
+                    invoice: { rate: getNum(row[13]), incorrect: getNum(row[11]), total: getNum(row[12]) }
                 });
 
-                if(isInitialLoad) {
-                    const now = new Date();
-                    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    const currentYM = `${now.getFullYear()}-${monthNames[now.getMonth()]}`;
-                    
-                    for (let i = 0; i < filter.options.length; i++) {
-                        if (filter.options[i].value === currentYM) {
-                            filter.selectedIndex = i;
-                            break;
-                        }
-                    }
-                    
-                    selectKPI(1, document.querySelector('.menu-item[data-kpi="1"]'));
-                    isInitialLoad = false;
-                } else {
-                    filterData();
-                }
-
-            } catch (error) {
-                console.error("Data fetch error", error);
-                if(isInitialLoad) {
-                    document.getElementById('kpiTitle').innerText = "Connection Error!";
-                    document.getElementById('kpiDescription').innerText = "Please check your internet or Google Sheet links.";
-                }
+                const opt = document.createElement('option');
+                opt.value = monthStr;
+                opt.textContent = monthStr;
+                monthFilter.appendChild(opt);
             }
+
+            // Select latest month by default
+            if (parsedData.length > 0) {
+                monthFilter.selectedIndex = parsedData.length - 1;
+            }
+
+            // Trigger UI update
+            selectKPI(1, document.querySelector('.menu-item[data-kpi="1"]'));
         }
 
-        function setTargetBadge(isSuccess, text) {
+        // Set Target Badge Colors dynamically
+        function setTargetBadge(val, target, type) {
             const badge = document.getElementById('targetBadge');
             badge.style.display = 'inline-block';
-            badge.innerText = text;
+            
+            let isSuccess = false;
+            if (type === "<") isSuccess = val < target;
+            if (type === ">") isSuccess = val > target;
+
+            badge.innerText = `Standard: ${type} ${target}% | Actual: ${val}%`;
+            
             if(isSuccess) {
                 badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 badge-success";
             } else {
@@ -363,224 +299,105 @@
             }
         }
 
-        function filterData() {
-            const ym = document.getElementById('monthFilter').value;
-            if(!ym) return;
-
-            if(activeKPI === 1) calculateSRR(ym);
-            else if(activeKPI === 2) calculateShRR(ym);
-            else if(activeKPI === 3) calculateSFA(ym);
-        }
-
-        // --- KPI Calculation Logic ---
-        function calculateSRR(ym) {
-            let totalIssue = 0, totalReturn = 0;
-            gData.issuedQty.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalIssue += parseFloat(r[3]) || 0; });
-            gData.salesReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalReturn += parseFloat(r[3]) || 0; });
-
-            const rate = totalIssue > 0 ? ((totalReturn / totalIssue) * 100) : 0;
-
-            document.getElementById('mainMetricValue').innerText = rate.toFixed(2) + '%';
-            document.getElementById('subMetric1Label').innerText = "Total Issued Qty";
-            document.getElementById('subMetric1Value').innerText = totalIssue.toLocaleString();
-            document.getElementById('subMetric2Label').innerText = "Total Return Qty";
-            document.getElementById('subMetric2Value').innerText = totalReturn.toLocaleString();
-
-            setTargetBadge(rate < 4, `Target: < 4% | Actual: ${rate.toFixed(2)}%`);
-        }
-
-        function calculateShRR(ym) {
-            let totalShopReturn = 0, totalSold = 0;
-            const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
-            const [year, monthName] = ym.split('-');
-            const targetDate = `${year}-${monthMap[monthName] || monthName}`; 
-
-            gData.shopReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalShopReturn += parseFloat(r[3]) || 0; });
-            gData.repReport.forEach(r => { 
-                if (r.length > 7 && r[0]) {
-                    let dateStr = r[0].toString().trim();
-                    if (dateStr.includes(targetDate) || getYMFromDateStr(dateStr) === ym) {
-                        let valStr = r[7] ? r[7].toString().replace(/,/g, '').trim() : "0";
-                        totalSold += parseFloat(valStr) || 0;
-                    }
-                }
-            });
-
-            const rate = totalSold > 0 ? ((totalShopReturn / totalSold) * 100) : 0;
-
-            document.getElementById('mainMetricValue').innerText = rate.toFixed(2) + '%';
-            document.getElementById('subMetric1Label').innerText = "Total Sold Qty";
-            document.getElementById('subMetric1Value').innerText = totalSold.toLocaleString(undefined, {maximumFractionDigits: 2});
-            document.getElementById('subMetric2Label').innerText = "Shop Return Qty";
-            document.getElementById('subMetric2Value').innerText = totalShopReturn.toLocaleString(undefined, {maximumFractionDigits: 2});
-
-            setTargetBadge(rate < 1, `Target: < 1% | Actual: ${rate.toFixed(2)}%`);
-        }
-
-        function calculateSFA(ym) {
-            let totalForecast = 0, totalSold = 0;
-            const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
-            const [year, monthName] = ym.split('-');
-            const targetDate = `${year}-${monthMap[monthName] || monthName}`;
-
-            gData.forecast.forEach(r => { if(`${r[0]}-${r[1]}` === ym) totalForecast += parseFloat(r[4]) || 0; });
-            gData.repReport.forEach(r => { 
-                if (r.length > 7 && r[0]) {
-                    let dateStr = r[0].toString().trim();
-                    if (dateStr.includes(targetDate) || getYMFromDateStr(dateStr) === ym) {
-                        let valStr = r[7] ? r[7].toString().replace(/,/g, '').trim() : "0";
-                        totalSold += parseFloat(valStr) || 0;
-                    }
-                }
-            });
-
-            let accuracy = 0;
-            if (totalSold > 0) {
-                accuracy = (1 - (Math.abs(totalSold - totalForecast) / totalSold)) * 100;
-            }
-
-            document.getElementById('mainMetricValue').innerText = accuracy.toFixed(2) + '%';
-            document.getElementById('subMetric1Label').innerText = "Actual Sales (Sold Qty)";
-            document.getElementById('subMetric1Value').innerText = totalSold.toLocaleString(undefined, {maximumFractionDigits: 2});
-            document.getElementById('subMetric2Label').innerText = "Forecast Sales";
-            document.getElementById('subMetric2Value').innerText = Math.round(totalForecast).toLocaleString();
-
-            setTargetBadge(accuracy > 98, `Target: > 98% | Actual: ${accuracy.toFixed(2)}%`);
-        }
-
-        // --- Historical Trend Logic ---
-        function getHistoricalData(kpiId, ym) {
-            let val = 0;
-            if (kpiId === 1) { // SRR
-                let tIss = 0, tRet = 0;
-                gData.issuedQty.forEach(r => { if(`${r[0]}-${r[1]}` === ym) tIss += parseFloat(r[3]) || 0; });
-                gData.salesReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) tRet += parseFloat(r[3]) || 0; });
-                val = tIss > 0 ? ((tRet / tIss) * 100) : 0;
-            } 
-            else if (kpiId === 2) { // ShRR
-                let tShopRet = 0, tSold = 0;
-                const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
-                const [year, monthName] = ym.split('-');
-                const targetDate = `${year}-${monthMap[monthName] || monthName}`;
-                gData.shopReturn.forEach(r => { if(`${r[0]}-${r[1]}` === ym) tShopRet += parseFloat(r[3]) || 0; });
-                gData.repReport.forEach(r => { 
-                    if (r.length > 7 && r[0]) {
-                        let dateStr = r[0].toString().trim();
-                        if (dateStr.includes(targetDate) || getYMFromDateStr(dateStr) === ym) {
-                            let valStr = r[7] ? r[7].toString().replace(/,/g, '').trim() : "0";
-                            tSold += parseFloat(valStr) || 0;
-                        }
-                    }
-                });
-                val = tSold > 0 ? ((tShopRet / tSold) * 100) : 0;
-            }
-            else if (kpiId === 3) { // SFA
-                let tForecast = 0, tSold = 0;
-                const monthMap = { "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07", "August": "08", "September": "09", "October": "10", "November": "11", "December": "12" };
-                const [year, monthName] = ym.split('-');
-                const targetDate = `${year}-${monthMap[monthName] || monthName}`;
-                gData.forecast.forEach(r => { if(`${r[0]}-${r[1]}` === ym) tForecast += parseFloat(r[4]) || 0; });
-                gData.repReport.forEach(r => { 
-                    if (r.length > 7 && r[0]) {
-                        let dateStr = r[0].toString().trim();
-                        if (dateStr.includes(targetDate) || getYMFromDateStr(dateStr) === ym) {
-                            let valStr = r[7] ? r[7].toString().replace(/,/g, '').trim() : "0";
-                            tSold += parseFloat(valStr) || 0;
-                        }
-                    }
-                });
-                val = tSold > 0 ? ((1 - (Math.abs(tSold - tForecast) / tSold)) * 100) : 0;
-            }
-            return val.toFixed(2);
-        }
-
-        function updateTrendChart(id) {
-            // Dropdown eke thiyena months aran ASCENDING order ekata (Left to Right, Oldest to Newest) sort kirima
-            let allMonths = Array.from(document.getElementById('monthFilter').options)
-                                 .map(opt => opt.value)
-                                 .filter(v => v !== 'all' && v !== '')
-                                 .sort((a,b) => parseYMToDate(a) - parseYMToDate(b));
-            
-            // Last 12 months gannawa
-            let trendMonths = allMonths.slice(-12);
-            let labels = [];
-            let dataPoints = [];
-
-            trendMonths.forEach(ym => {
-                let [year, month] = ym.split('-');
-                let shortMonth = month.substring(0, 3); // Eg: Jan
-                let shortYear = year.substring(2, 4); // Eg: 26
-                labels.push(`${shortMonth} '${shortYear}`);
-                
-                dataPoints.push(getHistoricalData(id, ym));
-            });
-
-            const titles = { 1: 'SRR% Trend', 2: 'ShRR% Trend', 3: 'SFA% Trend' };
-            const colors = { 1: '#48CAE4', 2: '#90E0EF', 3: '#ADE8F4' };
-            
-            document.getElementById('chartTitle').innerText = (titles[id] || 'Monthly Trend') + ' (Last 12 Months)';
-            drawChart(labels, dataPoints, titles[id] || 'Trend', colors[id] || '#48CAE4');
-        }
-
+        // Handle KPI Selection
         function selectKPI(id, element) {
             activeKPI = id;
 
+            // Update Background Layers smoothly
             document.querySelectorAll('.bg-layer').forEach(layer => layer.classList.remove('active'));
             document.getElementById(`bg-${id}`).classList.add('active');
 
-            document.querySelectorAll('.menu-item').forEach(el => {
-                el.classList.remove('active');
-            });
+            // Update Sidebar UI
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
             
-            // Re-trigger CSS animations for both cards
+            // Re-trigger Card CSS Animations
             const mainCard = document.getElementById('mainDisplay');
             const graphCard = document.getElementById('graphDisplay');
             mainCard.classList.remove('active'); 
             graphCard.classList.remove('active'); 
             
             setTimeout(() => {
-                const badge = document.getElementById('targetBadge');
+                const kpi = kpiDetails[id];
+                document.getElementById('kpiTitle').innerText = kpi.title;
+                document.getElementById('kpiDescription').innerText = kpi.desc;
                 
-                if(id === 1) {
-                    document.getElementById('kpiTitle').innerText = "Sales Return Rate";
-                    document.getElementById('kpiDescription').innerText = "Percentage of products returned compared to products issued.";
-                    document.getElementById('mainMetricLabel').innerText = "Rate";
-                    filterData(); 
-                } else if(id === 2) {
-                    document.getElementById('kpiTitle').innerText = "Shop Return Rate";
-                    document.getElementById('kpiDescription').innerText = "Percentage of shop returns compared to total sold quantity.";
-                    document.getElementById('mainMetricLabel').innerText = "Rate";
-                    filterData();
-                } else if (id === 3) {
-                    document.getElementById('kpiTitle').innerText = "Sales Forecast Accuracy";
-                    document.getElementById('kpiDescription').innerText = "How close actual sales are matching the forecast predictions.";
-                    document.getElementById('mainMetricLabel').innerText = "Accuracy";
-                    filterData();
-                } else {
-                    document.getElementById('kpiTitle').innerText = `KPI ${id} (Under Construction)`;
-                    document.getElementById('kpiDescription').innerText = "Details for this metric will be available soon.";
-                    document.getElementById('mainMetricLabel').innerText = "N/A";
-                    document.getElementById('mainMetricValue').innerText = "-";
-                    document.getElementById('subMetric1Label').innerText = "Metric 1";
-                    document.getElementById('subMetric1Value').innerText = "-";
-                    document.getElementById('subMetric2Label').innerText = "Metric 2";
-                    document.getElementById('subMetric2Value').innerText = "-";
-                    badge.style.display = 'none'; 
-                }
-                
-                updateTrendChart(id); // Update Graph
+                filterData(); // Update data and chart
                 
                 mainCard.classList.add('active'); 
                 graphCard.classList.add('active'); 
-            }, 400); 
+            }, 300); 
         }
 
-        // --- Chart.js Draw Logic ---
-        let kpiChart = null; 
-        function drawChart(labels, dataPoints, labelName, lineColor) {
-            const ctx = document.getElementById('trendChart').getContext('2d');
+        // Update Card Data based on Dropdown
+        function filterData() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const dataRow = parsedData.find(d => d.month === selectedMonth);
             
+            if(!dataRow) return;
+
+            let rate = 0;
+            const target = kpiDetails[activeKPI].target;
+            const type = kpiDetails[activeKPI].type;
+
+            if (activeKPI === 1) { // SRR
+                rate = dataRow.srr.rate || 0;
+                document.getElementById('subMetric1Label').innerText = "Issued Qty";
+                document.getElementById('subMetric1Value').innerText = (dataRow.srr.issQty || 0).toLocaleString();
+                document.getElementById('subMetric2Label').innerText = "Return Qty";
+                document.getElementById('subMetric2Value').innerText = (dataRow.srr.retQty || 0).toLocaleString();
+            } else if (activeKPI === 2) { // ShRR
+                rate = dataRow.shop.rate || 0;
+                document.getElementById('subMetric1Label').innerText = "Sold Qty";
+                document.getElementById('subMetric1Value').innerText = (dataRow.shop.soldQty || 0).toLocaleString();
+                document.getElementById('subMetric2Label').innerText = "Shop Return Qty";
+                document.getElementById('subMetric2Value').innerText = (dataRow.shop.retQty || 0).toLocaleString();
+            } else if (activeKPI === 3) { // Forecast
+                rate = dataRow.forecast.rate || 0;
+                document.getElementById('subMetric1Label').innerText = "Actual Sale";
+                document.getElementById('subMetric1Value').innerText = (dataRow.forecast.actual || 0).toLocaleString();
+                document.getElementById('subMetric2Label').innerText = "Forecast Sale";
+                document.getElementById('subMetric2Value').innerText = (dataRow.forecast.forecast || 0).toLocaleString();
+            } else if (activeKPI === 4) { // Invoice
+                rate = dataRow.invoice.rate || 0;
+                document.getElementById('subMetric1Label').innerText = "Incorrect Invoices";
+                document.getElementById('subMetric1Value').innerText = (dataRow.invoice.incorrect || 0).toLocaleString();
+                document.getElementById('subMetric2Label').innerText = "Total Invoices";
+                document.getElementById('subMetric2Value').innerText = (dataRow.invoice.total || 0).toLocaleString();
+            }
+
+            document.getElementById('mainMetricValue').innerText = rate.toFixed(2) + '%';
+            setTargetBadge(rate.toFixed(2), target, type);
+            
+            updateTrendChart();
+        }
+
+        // Draw the Chart
+        function updateTrendChart() {
+            // Get data up to the selected month
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const selectedIndex = parsedData.findIndex(d => d.month === selectedMonth);
+            
+            // Get last 12 months for the chart
+            const trendData = parsedData.slice(Math.max(0, selectedIndex - 11), selectedIndex + 1);
+
+            let labels = [];
+            let dataPoints = [];
+
+            trendData.forEach(d => {
+                let parts = d.month.split(' ');
+                labels.push(`${parts[1].substring(0,3)} '${parts[0].substring(2,4)}`); // "Apr '26"
+                
+                if (activeKPI === 1) dataPoints.push(d.srr.rate || 0);
+                if (activeKPI === 2) dataPoints.push(d.shop.rate || 0);
+                if (activeKPI === 3) dataPoints.push(d.forecast.rate || 0);
+                if (activeKPI === 4) dataPoints.push(d.invoice.rate || 0);
+            });
+
+            const colors = { 1: '#48CAE4', 2: '#90E0EF', 3: '#ADE8F4', 4: '#48CAE4' };
+            const lineColor = colors[activeKPI];
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
             if(kpiChart) { kpiChart.destroy(); }
 
             kpiChart = new Chart(ctx, {
@@ -588,12 +405,12 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: labelName,
+                        label: kpiDetails[activeKPI].title,
                         data: dataPoints,
                         borderColor: lineColor, 
                         backgroundColor: 'rgba(255,255,255,0.05)', 
                         borderWidth: 4,
-                        tension: 0.4, // Smooth Oval Curve
+                        tension: 0.4, // Smooth curve
                         fill: true,
                         pointBackgroundColor: '#fff',
                         pointBorderColor: lineColor,
@@ -605,7 +422,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: {
-                        duration: 1800, // Very Smooth Draw Animation
+                        duration: 1800, 
                         easing: 'easeOutQuart'
                     },
                     scales: {
@@ -627,14 +444,19 @@
                             bodyFont: { size: 14, weight: 'bold' },
                             padding: 12,
                             cornerRadius: 8,
-                            displayColors: false
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + '%';
+                                }
+                            }
                         }
                     }
                 }
             });
         }
 
-        // --- Full Screen Logic ---
+        // Full Screen Functionality
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
@@ -645,25 +467,24 @@
             }
         }
         
-        document.addEventListener('fullscreenchange', (event) => {
+        document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
             } else {
-                document.getElementById('fsBtn').innerHTML = "⬅ Back to Streamlit";
+                document.getElementById('fsBtn').innerHTML = "⬅ Exit Full Screen";
             }
-            updateBrandingVisibility();
         });
 
-        // Mouse Wheel Scroll Functionality
+        // Mouse Wheel Scroll Functionality for Sidebar
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
             if (isScrolling) return; 
             
             let nextId = activeKPI;
             if (e.deltaY > 0) { 
-                nextId = activeKPI < 6 ? activeKPI + 1 : 1; 
+                nextId = activeKPI < 4 ? activeKPI + 1 : 1; 
             } else if (e.deltaY < 0) { 
-                nextId = activeKPI > 1 ? activeKPI - 1 : 6;
+                nextId = activeKPI > 1 ? activeKPI - 1 : 4;
             }
 
             if (nextId !== activeKPI) {
@@ -675,8 +496,8 @@
             }
         });
 
+        // Start Application
         initData();
-        setInterval(initData, 600000);
 
     </script>
 </body>
