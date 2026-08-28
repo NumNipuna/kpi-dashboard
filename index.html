@@ -29,7 +29,7 @@
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow-x: hidden; 
-            overflow-y: auto; /* Enable vertical scrolling */
+            overflow-y: auto; 
             margin: 0;
             background-color: var(--c-900);
         }
@@ -102,6 +102,15 @@
             transform: scale(1) translateY(0);
         }
 
+        /* 100% Smooth Line Reveal Animation */
+        @keyframes smoothDraw {
+            0% { clip-path: inset(0 100% 0 0); }
+            100% { clip-path: inset(0 0 0 0); }
+        }
+        .chart-draw-anim {
+            animation: smoothDraw 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
         select {
             background-color: rgba(255,255,255,0.1);
             color: white;
@@ -113,7 +122,6 @@
         }
         select option { background-color: var(--c-900); }
         
-        /* Custom Scrollbar for Table */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -131,10 +139,8 @@
     <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
         <div id="companyBranding" class="flex items-center space-x-4 transition-all duration-300">
-            <!-- ============================================== -->
-            <!-- OYAGE GITHUB RAW LOGO LINK EKA METHANATA DANNA -->
-            <!-- ============================================== -->
-            <img src="https://raw.githubusercontent.com/OYAGE_USERNAME/OYAGE_REPO/main/logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
+            <!-- METHANATA RAW LINK EKA DANNA -->
+            <img src="https://raw.githubusercontent.com/IMO-Chicken/Logo/main/logo.png" alt="IMO Logo" class="h-12 w-auto object-contain" onerror="this.style.display='none'">
             <div>
                 <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">IMO Chicken & Agro</h1>
                 <p class="text-xs tracking-widest uppercase" style="color: var(--c-300);">Performance Dashboard</p>
@@ -162,13 +168,13 @@
         <div class="menu-item" data-kpi="4" onclick="selectKPI(4, this)">Invoice Acc.</div>
     </div>
 
-    <!-- MAIN DISPLAY AREA (Top & Bottom Layout) -->
+    <!-- MAIN DISPLAY AREA -->
     <main class="flex-1 flex flex-col pl-[200px] pr-8 z-10 relative gap-8 w-full max-w-[1600px] mx-auto">
         
         <!-- TOP SECTION: KPI Card & Chart -->
         <div class="flex flex-col lg:flex-row gap-6 w-full h-auto min-h-[400px]">
             
-            <!-- KPI SUMMARY CARD (1/3 Width) -->
+            <!-- KPI SUMMARY CARD -->
             <div id="mainDisplay" class="card-animate glass w-full lg:w-1/3 rounded-[2rem] p-8 relative overflow-hidden flex flex-col justify-between" style="border-top: 5px solid var(--c-500);">
                 <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -mr-20 -mt-20 blur-3xl bg-white"></div>
                 <div class="relative z-10">
@@ -196,13 +202,14 @@
                 </div>
             </div>
 
-            <!-- TREND GRAPH CARD (2/3 Width) -->
+            <!-- TREND GRAPH CARD -->
             <div id="graphDisplay" class="card-animate glass w-full lg:w-2/3 rounded-[2rem] p-8 relative overflow-hidden flex flex-col" style="border-top: 5px solid var(--c-400);">
                 <div class="flex justify-between items-center mb-4 relative z-10">
                     <h3 id="chartTitle" class="text-xl font-bold tracking-wide" style="color: var(--c-100);">Historical Trend</h3>
                     <span class="text-xs opacity-70 glass px-3 py-1 rounded-full" style="color: white;">Monthly View</span>
                 </div>
-                <div class="w-full flex-1 relative min-h-[300px] z-10">
+                <!-- CSS Animation Wrapper Eka -->
+                <div id="chartWrapper" class="w-full flex-1 relative min-h-[300px] z-10">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
@@ -380,17 +387,14 @@
             updateDataTable();
         }
 
-        // --- Table Generation ---
         function updateDataTable() {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
             
-            // Set Table Headers dynamically
             document.getElementById('tableThRate').innerText = kpiDetails[activeKPI].title;
             document.getElementById('tableThSub1').innerText = document.getElementById('subMetric1Label').innerText;
             document.getElementById('tableThSub2').innerText = document.getElementById('subMetric2Label').innerText;
 
-            // Reverse data to show latest months first in the table
             const tableData = [...parsedData].reverse();
 
             tableData.forEach(d => {
@@ -400,7 +404,7 @@
                 else if (activeKPI === 3) { rate = d.forecast.rate; sub1 = d.forecast.actual; sub2 = d.forecast.forecast; }
                 else if (activeKPI === 4) { rate = d.invoice.rate; sub1 = d.invoice.incorrect; sub2 = d.invoice.total; }
 
-                if (rate === null) return; // Skip if no data for that month
+                if (rate === null) return; 
 
                 const target = kpiDetails[activeKPI].target;
                 const type = kpiDetails[activeKPI].type;
@@ -423,8 +427,13 @@
             });
         }
 
-        // --- Chart & Drawing Animation ---
         function updateTrendChart() {
+            // CSS Animaiton eka trigger kireema
+            const wrapper = document.getElementById('chartWrapper');
+            wrapper.classList.remove('chart-draw-anim');
+            void wrapper.offsetWidth; // Refresh the CSS
+            wrapper.classList.add('chart-draw-anim');
+
             const selectedMonth = document.getElementById('monthFilter').value;
             const selectedIndex = parsedData.findIndex(d => d.month === selectedMonth);
             const trendData = parsedData.slice(Math.max(0, selectedIndex - 11), selectedIndex + 1);
@@ -444,15 +453,10 @@
 
             const lineColor = colors[activeKPI];
             const targetVal = kpiDetails[activeKPI].target;
-            const targetData = Array(labels.length).fill(targetVal); // Standard Line Data
+            const targetData = Array(labels.length).fill(targetVal);
 
             const ctx = document.getElementById('trendChart').getContext('2d');
             if(kpiChart) { kpiChart.destroy(); }
-
-            // Progressive Line Drawing Animation logic
-            const totalDuration = 2000;
-            const delayBetweenPoints = totalDuration / dataPoints.length;
-            const previousY = (ctx) => ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(100) : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(['y'], true).y;
 
             kpiChart = new Chart(ctx, {
                 type: 'line',
@@ -462,7 +466,7 @@
                         {
                             label: 'Standard Target',
                             data: targetData,
-                            borderColor: '#ef4444', // Red dotted line for standard
+                            borderColor: '#ef4444',
                             borderWidth: 2,
                             borderDash: [5, 5],
                             pointRadius: 0, 
@@ -487,11 +491,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    // Meken kedi kedi yana eka ain wela 100% smooth draw wenawa
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeOutQuart'
-                    },
+                    animation: false, // Turn off native animation (CSS does the magic now)
                     scales: {
                         y: { 
                             grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
@@ -535,7 +535,6 @@
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
             if (isScrolling) return; 
-            // Scroll down table area nathuwa background eke scroll weddi witharak tab maru wenna (Optional)
             if (e.target.closest('table') || e.target.closest('#tableDisplay')) return; 
             
             let nextId = activeKPI;
