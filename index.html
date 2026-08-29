@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KPI Performance Dashboard</title>
     
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     
     <style>
@@ -99,7 +102,6 @@
             transform: scale(1) translateY(0);
         }
 
-        /* 100% Smooth Line Reveal Animation */
         @keyframes smoothDraw {
             0% { clip-path: inset(0 100% 0 0); }
             100% { clip-path: inset(0 0 0 0); }
@@ -142,17 +144,19 @@
         </div>
         
         <div class="flex items-center space-x-4 ml-auto">
+            <!-- Month Filter -->
             <div id="monthFilterContainer" class="flex items-center space-x-4 glass px-6 py-3 rounded-full">
                 <span class="text-sm font-semibold" style="color: var(--c-200);">Month:</span>
-                <select id="monthFilter" onchange="filterData()">
-                    <option value="all">Loading Data...</option>
+                <select id="monthFilter" onchange="handleMonthChange()">
+                    <option value="all">Loading...</option>
                 </select>
             </div>
             
+            <!-- Week Filter (Visible only for KPI 5) -->
             <div id="weekFilterContainer" class="flex items-center space-x-4 glass px-6 py-3 rounded-full hidden">
                 <span class="text-sm font-semibold" style="color: var(--c-200);">Week:</span>
-                <select id="weekFilter" onchange="filterData()">
-                    <option value="all">Loading Data...</option>
+                <select id="weekFilter" onchange="handleWeekChange()">
+                    <option value="all">Loading...</option>
                 </select>
             </div>
 
@@ -171,17 +175,13 @@
     </div>
 
     <main class="flex-1 flex flex-col pl-[200px] pr-8 z-10 relative gap-8 w-full max-w-[1600px] mx-auto">
-        
         <div class="flex flex-col lg:flex-row gap-6 w-full h-auto min-h-[400px]">
-            
             <div id="mainDisplay" class="card-animate glass w-full lg:w-1/3 rounded-[2rem] p-8 relative overflow-hidden flex flex-col justify-between" style="border-top: 5px solid var(--c-500);">
                 <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -mr-20 -mt-20 blur-3xl bg-white"></div>
                 <div class="relative z-10">
                     <h2 id="kpiTitle" class="text-3xl font-extrabold tracking-tight mb-2" style="color: var(--c-100);">Loading...</h2>
                     <div id="targetBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 hidden">Target</div>
-                    
-                    <p id="kpiDescription" class="text-sm mb-8 opacity-80 text-white">Please wait while data is being fetched.</p>
-                    
+                    <p id="kpiDescription" class="text-sm mb-8 opacity-80 text-white">Please wait...</p>
                     <div class="flex flex-col space-y-4">
                         <div class="p-6 rounded-3xl glass flex flex-col justify-center items-center text-center w-full">
                             <p id="mainMetricLabel" class="text-xs font-semibold uppercase tracking-widest mb-1" style="color: var(--c-300);">Rate</p>
@@ -210,7 +210,6 @@
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
-
         </div>
 
         <div id="tableDisplay" class="card-animate glass w-full rounded-[2rem] p-8 relative overflow-hidden" style="border-top: 5px solid var(--c-300);">
@@ -227,18 +226,14 @@
                         </tr>
                     </thead>
                     <tbody id="dataTableBody" class="text-white text-sm">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
     <script>
-        // 1. MONTHLY DATA URL
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?gid=291083279&single=true&output=csv";
-        
-        // 2. ALUTH WEEKLY DATA URL EKA
         const WEEKLY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?output=csv"; 
 
         let parsedData = [];
@@ -246,26 +241,21 @@
         let activeKPI = 1;
         let kpiChart = null; 
 
-        // KPI Configurations
         const kpiDetails = {
             1: { title: "Sales Return Rate", desc: "Percentage of sales return compared to issued quantity.", target: 4, type: "<" },
             2: { title: "Shop Return Rate", desc: "Percentage of shop return compared to sold quantity.", target: 1, type: "<" },
             3: { title: "Sales Forecast Accuracy", desc: "How accurately the actual sales match the forecast.", target: 98, type: ">" },
             4: { title: "Invoice & Receipt Accuracy", desc: "Accuracy rate of invoices and receipts processed.", target: 99, type: ">" },
-            5: { title: "Vehicle Utilization Rate", desc: "Percentage of vehicle capacity actually loaded.", target: 80, type: ">" } // Weekly KPI
+            5: { title: "Vehicle Utilization Rate", desc: "Percentage of vehicle capacity actually loaded.", target: 80, type: ">" } 
         };
+        const colors = { 1: '#48CAE4', 2: '#90E0EF', 3: '#ADE8F4', 4: '#48CAE4', 5: '#facc15' }; 
 
-        const colors = { 1: '#48CAE4', 2: '#90E0EF', 3: '#ADE8F4', 4: '#48CAE4', 5: '#facc15' }; // Yellow for KPI 5
-
-        // Initialization
         function initData() {
             Papa.parse(CSV_URL, {
-                download: true,
-                header: false,
+                download: true, header: false,
                 complete: function(results) {
                     processCSVData(results.data);
                     
-                    // Fetch Weekly Data after monthly
                     if(WEEKLY_CSV_URL) {
                         Papa.parse(WEEKLY_CSV_URL, {
                             download: true, header: false,
@@ -281,7 +271,6 @@
             });
         }
 
-        // Process Monthly Data
         function processCSVData(rows) {
             parsedData = [];
             const monthFilter = document.getElementById('monthFilter');
@@ -290,7 +279,6 @@
             for (let i = 2; i < rows.length; i++) {
                 const row = rows[i];
                 if (!row[0]) continue; 
-
                 const monthStr = `${row[0]} ${row[1]}`; 
                 const getNum = (val) => {
                     if (!val || val === '-') return null;
@@ -310,29 +298,24 @@
                     invoice: { rate: getNum(row[13]), incorrect: getNum(row[11]), total: getNum(row[12]) }
                 });
 
-                const opt = document.createElement('option');
-                opt.value = monthStr;
-                opt.textContent = monthStr;
-                monthFilter.appendChild(opt);
+                // Add to dropdown only if it doesn't exist
+                if(!Array.from(monthFilter.options).some(opt => opt.value === monthStr)) {
+                    const opt = document.createElement('option');
+                    opt.value = monthStr;
+                    opt.textContent = monthStr;
+                    monthFilter.appendChild(opt);
+                }
             }
-
-            if (parsedData.length > 0) {
-                monthFilter.selectedIndex = parsedData.length - 1;
-            }
+            if (parsedData.length > 0) monthFilter.selectedIndex = parsedData.length - 1;
         }
 
-        // Process Weekly Data
         function processWeeklyData(rows) {
             parsedWeeklyData = [];
-            const weekFilter = document.getElementById('weekFilter');
-            weekFilter.innerHTML = '';
-
             for (let i = 2; i < rows.length; i++) {
                 const row = rows[i];
                 if (!row[0] || !row[2]) continue; 
 
-                const weekLabelStr = `${row[0]} ${row[1]} - ${row[2]}`; // "2026 August - W1"
-                
+                const weekLabelStr = `${row[0]} ${row[1]} - ${row[2]}`; 
                 const getNum = (val) => {
                     if (!val || val === '-') return null;
                     return parseFloat(val.toString().replace(/,/g, '').replace('%', ''));
@@ -349,16 +332,45 @@
                     capacity: getNum(row[4]),
                     rate: utilRate
                 });
+            }
+        }
 
+        // Dropdown Logic For Week (Cascading)
+        function populateWeekDropdown() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const weekFilter = document.getElementById('weekFilter');
+            weekFilter.innerHTML = '';
+            
+            // Filter weeks belonging to the selected month
+            const weeksForMonth = parsedWeeklyData.filter(d => d.monthStr === selectedMonth);
+            
+            if(weeksForMonth.length === 0) {
                 const opt = document.createElement('option');
-                opt.value = weekLabelStr;
-                opt.textContent = weekLabelStr;
+                opt.value = "";
+                opt.textContent = "No Data";
                 weekFilter.appendChild(opt);
+                return;
             }
 
-            if (parsedWeeklyData.length > 0) {
-                weekFilter.selectedIndex = parsedWeeklyData.length - 1;
+            weeksForMonth.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.weekLabel; 
+                opt.textContent = d.shortWeek; // Only show W1, W2 etc. in the dropdown
+                weekFilter.appendChild(opt);
+            });
+
+            weekFilter.selectedIndex = weeksForMonth.length - 1; // Auto select latest week
+        }
+
+        function handleMonthChange() {
+            if (activeKPI === 5) {
+                populateWeekDropdown(); // Month maru weddi week list eka update wenawa
             }
+            renderDashboard();
+        }
+
+        function handleWeekChange() {
+            renderDashboard();
         }
 
         function setTargetBadge(val, target, type) {
@@ -369,26 +381,25 @@
             badge.className = isSuccess ? "inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 badge-success" : "inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 badge-danger";
         }
 
-        // Handle KPI Tab Switching
         function selectKPI(id, element) {
             activeKPI = id;
 
-            // Update Backgrounds
             document.querySelectorAll('.bg-layer').forEach(layer => layer.classList.remove('active'));
             const bgId = id > 4 ? 4 : id; 
             document.getElementById(`bg-${bgId}`).classList.add('active');
 
-            // Update Sidebar Highlights
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
             
-            // Toggle Filters & Update UI Text depending on Monthly vs Weekly
             if(id === 5) {
-                document.getElementById('monthFilterContainer').classList.add('hidden');
+                // MONTH SAHA WEEK FILTER DEKAMA PENNANAWA
+                document.getElementById('monthFilterContainer').classList.remove('hidden');
                 document.getElementById('weekFilterContainer').classList.remove('hidden');
                 document.getElementById('tableThPeriod').innerText = "Week";
                 document.getElementById('chartViewBadge').innerText = "Weekly View";
+                populateWeekDropdown(); // KPI 5 load weddi weeks tika hadagannawa
             } else {
+                // MONTH FILTER EKA WITHARAK PENNANAWA
                 document.getElementById('monthFilterContainer').classList.remove('hidden');
                 document.getElementById('weekFilterContainer').classList.add('hidden');
                 document.getElementById('tableThPeriod').innerText = "Month";
@@ -398,7 +409,6 @@
             const mainCard = document.getElementById('mainDisplay');
             const graphCard = document.getElementById('graphDisplay');
             const tableCard = document.getElementById('tableDisplay');
-            
             mainCard.classList.remove('active'); 
             graphCard.classList.remove('active'); 
             tableCard.classList.remove('active'); 
@@ -407,37 +417,34 @@
                 const kpi = kpiDetails[id];
                 document.getElementById('kpiTitle').innerText = kpi.title;
                 document.getElementById('kpiDescription').innerText = kpi.desc;
-                
-                filterData(); 
-                
+                renderDashboard(); 
                 mainCard.classList.add('active'); 
                 graphCard.classList.add('active');
                 tableCard.classList.add('active'); 
             }, 300); 
         }
 
-        function filterData() {
+        function renderDashboard() {
             let rate = 0, sub1 = 0, sub2 = 0;
             const target = kpiDetails[activeKPI].target;
             const type = kpiDetails[activeKPI].type;
 
             if (activeKPI === 5) {
-                // Fetch from Weekly Data array
                 const selectedWeek = document.getElementById('weekFilter').value;
                 const dataRow = parsedWeeklyData.find(d => d.weekLabel === selectedWeek);
-                
                 if(dataRow) {
                     rate = dataRow.rate || 0;
                     document.getElementById('subMetric1Label').innerText = "Actual Load Weight";
                     document.getElementById('subMetric1Value').innerText = (dataRow.actualLoad || 0).toLocaleString();
                     document.getElementById('subMetric2Label').innerText = "Vehicle Capacity";
                     document.getElementById('subMetric2Value').innerText = (dataRow.capacity || 0).toLocaleString();
+                } else {
+                    document.getElementById('subMetric1Value').innerText = "0";
+                    document.getElementById('subMetric2Value').innerText = "0";
                 }
             } else {
-                // Fetch from Monthly Data array
                 const selectedMonth = document.getElementById('monthFilter').value;
                 const dataRow = parsedData.find(d => d.month === selectedMonth);
-                
                 if(!dataRow) return;
 
                 if (activeKPI === 1) {
@@ -474,7 +481,6 @@
             updateDataTable();
         }
 
-        // --- Table ---
         function updateDataTable() {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
@@ -487,7 +493,6 @@
 
             tableData.forEach(d => {
                 let rate = 0, sub1 = 0, sub2 = 0, periodLabel = "";
-
                 if(activeKPI === 5) {
                     periodLabel = d.weekLabel;
                     rate = d.rate; sub1 = d.actualLoad; sub2 = d.capacity;
@@ -522,7 +527,6 @@
             });
         }
 
-        // --- Chart ---
         function updateTrendChart() {
             const wrapper = document.getElementById('chartWrapper');
             wrapper.classList.remove('chart-draw-anim');
@@ -630,7 +634,6 @@
             });
         }
 
-        // --- Streamlit Full Screen Interception & Logo Show/Hide ---
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => { console.log(err); });
@@ -650,7 +653,6 @@
             }
         });
 
-        // --- Mouse Wheel Scrolling (1 to 5) ---
         let isScrolling = false;
         window.addEventListener('wheel', (e) => {
             if (isScrolling) return; 
