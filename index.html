@@ -102,7 +102,6 @@
             transform: scale(1) translateY(0);
         }
 
-        /* 100% Smooth Line Reveal Animation */
         @keyframes smoothDraw {
             0% { clip-path: inset(0 100% 0 0); }
             100% { clip-path: inset(0 0 0 0); }
@@ -130,7 +129,6 @@
 </head>
 <body class="min-h-screen flex flex-col relative pb-10">
 
-    <!-- Morphing Backgrounds -->
     <div id="bg-1" class="bg-layer active" style="background-color: var(--c-900); background-image: radial-gradient(circle at 10% 10%, var(--c-800) 0%, transparent 60%), radial-gradient(circle at 90% 90%, var(--c-700) 0%, transparent 60%);"></div>
     <div id="bg-2" class="bg-layer" style="background-color: var(--c-900); background-image: radial-gradient(circle at 15% 15%, var(--c-700) 0%, transparent 60%), radial-gradient(circle at 85% 85%, var(--c-600) 0%, transparent 60%);"></div>
     <div id="bg-3" class="bg-layer" style="background-color: var(--c-800); background-image: radial-gradient(circle at 5% 20%, var(--c-600) 0%, transparent 65%), radial-gradient(circle at 95% 80%, var(--c-500) 0%, transparent 65%);"></div>
@@ -139,7 +137,6 @@
     <!-- Header -->
     <header class="w-full p-6 flex justify-between items-center z-50 relative">
         <div id="companyBranding" class="flex items-center space-x-4 transition-all duration-300">
-            <!-- METHANATA RAW LINK EKA DANNA -->
             <img id="mainLogo" src="logo.png" alt="IMO Logo" class="h-12 w-auto object-contain hidden" onerror="this.style.display='none'">
             <div>
                 <h1 class="text-2xl font-bold tracking-wider" style="color: var(--c-100);">Imo Chicken & Agro (Pvt) Ltd</h1>
@@ -148,41 +145,46 @@
         </div>
         
         <div class="flex items-center space-x-4 ml-auto">
-            <div class="flex items-center space-x-4 glass px-6 py-3 rounded-full">
-                <span class="text-sm font-semibold" style="color: var(--c-200);">Period:</span>
-                <select id="monthFilter" onchange="filterData()">
-                    <option value="all">Loading Data...</option>
+            <!-- Month Filter -->
+            <div id="monthFilterContainer" class="flex items-center space-x-4 glass px-6 py-3 rounded-full">
+                <span class="text-sm font-semibold" style="color: var(--c-200);">Month:</span>
+                <select id="monthFilter" onchange="handleMonthChange()">
+                    <option value="all">Loading...</option>
                 </select>
             </div>
+            
+            <!-- Week Filter (Visible only for KPI 5) -->
+            <div id="weekFilterContainer" class="flex items-center space-x-4 glass px-6 py-3 rounded-full hidden">
+                <span class="text-sm font-semibold" style="color: var(--c-200);">Week:</span>
+                <select id="weekFilter" onchange="filterData()">
+                    <option value="all">Loading...</option>
+                </select>
+            </div>
+
             <button onclick="toggleFullScreen()" id="fsBtn" class="glass px-4 py-3 rounded-lg text-sm font-bold text-white hover:bg-white hover:text-black transition cursor-pointer">
                 ⛶ Full Screen
             </button>
         </div>
     </header>
 
-    <!-- Sidebar -->
+    <!-- Sidebar with KPI 5 Added -->
     <div class="sidebar-menu" id="kpiMenu">
         <div class="menu-item active" data-kpi="1" onclick="selectKPI(1, this)">Sales Return</div>
         <div class="menu-item" data-kpi="2" onclick="selectKPI(2, this)">Shop Return</div>
         <div class="menu-item" data-kpi="3" onclick="selectKPI(3, this)">Forecast Acc.</div>
         <div class="menu-item" data-kpi="4" onclick="selectKPI(4, this)">Invoice Acc.</div>
+        <div class="menu-item" data-kpi="5" onclick="selectKPI(5, this)">Vehicle Util.</div>
     </div>
 
     <!-- MAIN DISPLAY AREA -->
     <main class="flex-1 flex flex-col pl-[200px] pr-8 z-10 relative gap-8 w-full max-w-[1600px] mx-auto">
-        
-        <!-- TOP SECTION: KPI Card & Chart -->
         <div class="flex flex-col lg:flex-row gap-6 w-full h-auto min-h-[400px]">
-            
-            <!-- KPI SUMMARY CARD -->
             <div id="mainDisplay" class="card-animate glass w-full lg:w-1/3 rounded-[2rem] p-8 relative overflow-hidden flex flex-col justify-between" style="border-top: 5px solid var(--c-500);">
                 <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -mr-20 -mt-20 blur-3xl bg-white"></div>
                 <div class="relative z-10">
                     <h2 id="kpiTitle" class="text-3xl font-extrabold tracking-tight mb-2" style="color: var(--c-100);">Loading...</h2>
                     <div id="targetBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 hidden">Target</div>
-                    
-                    <p id="kpiDescription" class="text-sm mb-8 opacity-80 text-white">Please wait while data is being fetched.</p>
-                    
+                    <p id="kpiDescription" class="text-sm mb-8 opacity-80 text-white">Please wait...</p>
                     <div class="flex flex-col space-y-4">
                         <div class="p-6 rounded-3xl glass flex flex-col justify-center items-center text-center w-full">
                             <p id="mainMetricLabel" class="text-xs font-semibold uppercase tracking-widest mb-1" style="color: var(--c-300);">Rate</p>
@@ -202,28 +204,24 @@
                 </div>
             </div>
 
-            <!-- TREND GRAPH CARD -->
             <div id="graphDisplay" class="card-animate glass w-full lg:w-2/3 rounded-[2rem] p-8 relative overflow-hidden flex flex-col" style="border-top: 5px solid var(--c-400);">
                 <div class="flex justify-between items-center mb-4 relative z-10">
                     <h3 id="chartTitle" class="text-xl font-bold tracking-wide" style="color: var(--c-100);">Historical Trend</h3>
-                    <span class="text-xs opacity-70 glass px-3 py-1 rounded-full" style="color: white;">Monthly View</span>
+                    <span id="chartViewBadge" class="text-xs opacity-70 glass px-3 py-1 rounded-full" style="color: white;">Monthly View</span>
                 </div>
-                <!-- CSS Animation Wrapper Eka -->
                 <div id="chartWrapper" class="w-full flex-1 relative min-h-[300px] z-10">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
-
         </div>
 
-        <!-- BOTTOM SECTION: Data Table -->
         <div id="tableDisplay" class="card-animate glass w-full rounded-[2rem] p-8 relative overflow-hidden" style="border-top: 5px solid var(--c-300);">
-            <h3 class="text-xl font-bold tracking-wide mb-6" style="color: var(--c-100);">Detailed Monthly Data</h3>
+            <h3 class="text-xl font-bold tracking-wide mb-6" style="color: var(--c-100);">Detailed Data</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-white/20 text-sm tracking-wider uppercase" style="color: var(--c-200);">
-                            <th class="p-3">Month</th>
+                            <th class="p-3" id="tableThPeriod">Month</th>
                             <th class="p-3" id="tableThRate">Rate</th>
                             <th class="p-3" id="tableThSub1">Metric 1</th>
                             <th class="p-3" id="tableThSub2">Metric 2</th>
@@ -231,18 +229,20 @@
                         </tr>
                     </thead>
                     <tbody id="dataTableBody" class="text-white text-sm">
-                        <!-- JS injected rows -->
                     </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?gid=291083279&single=true&output=csv";
+        
+        // Auto convert pubhtml link to CSV format for PapaParse
+        const WEEKLY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?output=csv"; 
 
         let parsedData = [];
+        let parsedWeeklyData = [];
         let activeKPI = 1;
         let kpiChart = null; 
 
@@ -250,17 +250,24 @@
             1: { title: "Sales Return Rate", desc: "Percentage of sales return compared to issued quantity.", target: 4, type: "<" },
             2: { title: "Shop Return Rate", desc: "Percentage of shop return compared to sold quantity.", target: 1, type: "<" },
             3: { title: "Sales Forecast Accuracy", desc: "How accurately the actual sales match the forecast.", target: 98, type: ">" },
-            4: { title: "Invoice & Receipt Accuracy", desc: "Accuracy rate of invoices and receipts processed.", target: 99, type: ">" }
+            4: { title: "Invoice & Receipt Accuracy", desc: "Accuracy rate of invoices and receipts processed.", target: 99, type: ">" },
+            5: { title: "Vehicle Utilization Rate", desc: "Percentage of vehicle capacity actually loaded.", target: 80, type: ">" } 
         };
-
-        const colors = { 1: '#48CAE4', 2: '#90E0EF', 3: '#ADE8F4', 4: '#48CAE4' };
+        const colors = { 1: '#48CAE4', 2: '#90E0EF', 3: '#ADE8F4', 4: '#48CAE4', 5: '#facc15' }; 
 
         function initData() {
             Papa.parse(CSV_URL, {
-                download: true,
-                header: false,
+                download: true, header: false,
                 complete: function(results) {
                     processCSVData(results.data);
+                    
+                    Papa.parse(WEEKLY_CSV_URL, {
+                        download: true, header: false,
+                        complete: function(res2) {
+                            processWeeklyData(res2.data);
+                            selectKPI(1, document.querySelector('.menu-item[data-kpi="1"]'));
+                        }
+                    });
                 }
             });
         }
@@ -293,23 +300,85 @@
                     invoice: { rate: getNum(row[13]), incorrect: getNum(row[11]), total: getNum(row[12]) }
                 });
 
+                if(!Array.from(monthFilter.options).some(opt => opt.value === monthStr)) {
+                    const opt = document.createElement('option');
+                    opt.value = monthStr;
+                    opt.textContent = monthStr;
+                    monthFilter.appendChild(opt);
+                }
+            }
+            if (parsedData.length > 0) monthFilter.selectedIndex = parsedData.length - 1;
+        }
+
+        function processWeeklyData(rows) {
+            parsedWeeklyData = [];
+            for (let i = 2; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row[0] || !row[2]) continue; 
+
+                const monthStr = `${row[0]} ${row[1]}`; 
+                const weekLabelStr = `${row[0]} ${row[1]} - ${row[2]}`; 
+                
+                const getNum = (val) => {
+                    if (!val || val === '-') return null;
+                    return parseFloat(val.toString().replace(/,/g, '').replace('%', ''));
+                };
+
+                const actualLoad = getNum(row[3]);
+                const capacity = getNum(row[4]);
+                const utilRate = getNum(row[5]);
+                
+                if (utilRate === null && actualLoad === null) continue;
+
+                parsedWeeklyData.push({
+                    weekLabel: weekLabelStr,
+                    shortWeek: row[2], // e.g. W1
+                    monthStr: monthStr,
+                    actualLoad: actualLoad,
+                    capacity: capacity,
+                    rate: utilRate
+                });
+            }
+        }
+
+        // Linked Filter: Populates weeks according to the selected month
+        function populateWeekDropdown() {
+            const selectedMonth = document.getElementById('monthFilter').value;
+            const weekFilter = document.getElementById('weekFilter');
+            weekFilter.innerHTML = '';
+            
+            const weeksForMonth = parsedWeeklyData.filter(d => d.monthStr === selectedMonth);
+            
+            if(weeksForMonth.length === 0) {
                 const opt = document.createElement('option');
-                opt.value = monthStr;
-                opt.textContent = monthStr;
-                monthFilter.appendChild(opt);
+                opt.value = "";
+                opt.textContent = "No Data";
+                weekFilter.appendChild(opt);
+                return;
             }
 
-            if (parsedData.length > 0) {
-                monthFilter.selectedIndex = parsedData.length - 1;
-            }
+            weeksForMonth.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.weekLabel; 
+                opt.textContent = d.shortWeek; // Shows W1, W2 etc. in UI
+                weekFilter.appendChild(opt);
+            });
 
-            selectKPI(1, document.querySelector('.menu-item[data-kpi="1"]'));
+            weekFilter.selectedIndex = weeksForMonth.length - 1; 
+        }
+
+        // Triggered when Month dropdown changes
+        function handleMonthChange() {
+            if (activeKPI === 5) {
+                populateWeekDropdown(); // Reload weeks for new month
+            }
+            filterData();
         }
 
         function setTargetBadge(val, target, type) {
             const badge = document.getElementById('targetBadge');
             badge.style.display = 'inline-block';
-            let isSuccess = type === "<" ? val < target : val > target;
+            let isSuccess = type === "<" ? val < target : val >= target;
             badge.innerText = `Standard: ${type} ${target}% | Actual: ${val}%`;
             badge.className = isSuccess ? "inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 badge-success" : "inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wider mb-6 badge-danger";
         }
@@ -318,10 +387,26 @@
             activeKPI = id;
 
             document.querySelectorAll('.bg-layer').forEach(layer => layer.classList.remove('active'));
-            document.getElementById(`bg-${id}`).classList.add('active');
+            const bgId = id > 4 ? 4 : id; 
+            document.getElementById(`bg-${bgId}`).classList.add('active');
 
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
+            
+            if(id === 5) {
+                // Show both filters for KPI 5
+                document.getElementById('monthFilterContainer').classList.remove('hidden');
+                document.getElementById('weekFilterContainer').classList.remove('hidden');
+                document.getElementById('tableThPeriod').innerText = "Week";
+                document.getElementById('chartViewBadge').innerText = "Weekly View";
+                populateWeekDropdown(); // Load weeks for currently selected month
+            } else {
+                // Hide week filter for others
+                document.getElementById('monthFilterContainer').classList.remove('hidden');
+                document.getElementById('weekFilterContainer').classList.add('hidden');
+                document.getElementById('tableThPeriod').innerText = "Month";
+                document.getElementById('chartViewBadge').innerText = "Monthly View";
+            }
             
             const mainCard = document.getElementById('mainDisplay');
             const graphCard = document.getElementById('graphDisplay');
@@ -345,39 +430,57 @@
         }
 
         function filterData() {
-            const selectedMonth = document.getElementById('monthFilter').value;
-            const dataRow = parsedData.find(d => d.month === selectedMonth);
-            
-            if(!dataRow) return;
-
-            let rate = 0;
+            let rate = 0, sub1 = 0, sub2 = 0;
             const target = kpiDetails[activeKPI].target;
             const type = kpiDetails[activeKPI].type;
 
-            if (activeKPI === 1) {
-                rate = dataRow.srr.rate || 0;
-                document.getElementById('subMetric1Label').innerText = "Issued Qty";
-                document.getElementById('subMetric1Value').innerText = (dataRow.srr.issQty || 0).toLocaleString();
-                document.getElementById('subMetric2Label').innerText = "Return Qty";
-                document.getElementById('subMetric2Value').innerText = (dataRow.srr.retQty || 0).toLocaleString();
-            } else if (activeKPI === 2) {
-                rate = dataRow.shop.rate || 0;
-                document.getElementById('subMetric1Label').innerText = "Sold Qty";
-                document.getElementById('subMetric1Value').innerText = (dataRow.shop.soldQty || 0).toLocaleString();
-                document.getElementById('subMetric2Label').innerText = "Shop Return Qty";
-                document.getElementById('subMetric2Value').innerText = (dataRow.shop.retQty || 0).toLocaleString();
-            } else if (activeKPI === 3) {
-                rate = dataRow.forecast.rate || 0;
-                document.getElementById('subMetric1Label').innerText = "Actual Sale";
-                document.getElementById('subMetric1Value').innerText = (dataRow.forecast.actual || 0).toLocaleString();
-                document.getElementById('subMetric2Label').innerText = "Forecast Sale";
-                document.getElementById('subMetric2Value').innerText = (dataRow.forecast.forecast || 0).toLocaleString();
-            } else if (activeKPI === 4) {
-                rate = dataRow.invoice.rate || 0;
-                document.getElementById('subMetric1Label').innerText = "Incorrect Invoices";
-                document.getElementById('subMetric1Value').innerText = (dataRow.invoice.incorrect || 0).toLocaleString();
-                document.getElementById('subMetric2Label').innerText = "Total Invoices";
-                document.getElementById('subMetric2Value').innerText = (dataRow.invoice.total || 0).toLocaleString();
+            if (activeKPI === 5) {
+                const selectedWeek = document.getElementById('weekFilter').value;
+                const dataRow = parsedWeeklyData.find(d => d.weekLabel === selectedWeek);
+                
+                if(dataRow) {
+                    rate = dataRow.rate || 0;
+                    document.getElementById('subMetric1Label').innerText = "Actual Load Weight";
+                    document.getElementById('subMetric1Value').innerText = (dataRow.actualLoad || 0).toLocaleString();
+                    document.getElementById('subMetric2Label').innerText = "Vehicle Capacity";
+                    document.getElementById('subMetric2Value').innerText = (dataRow.capacity || 0).toLocaleString();
+                } else {
+                    document.getElementById('subMetric1Label').innerText = "Actual Load Weight";
+                    document.getElementById('subMetric1Value').innerText = "0";
+                    document.getElementById('subMetric2Label').innerText = "Vehicle Capacity";
+                    document.getElementById('subMetric2Value').innerText = "0";
+                }
+            } else {
+                const selectedMonth = document.getElementById('monthFilter').value;
+                const dataRow = parsedData.find(d => d.month === selectedMonth);
+                
+                if(!dataRow) return;
+
+                if (activeKPI === 1) {
+                    rate = dataRow.srr.rate || 0;
+                    document.getElementById('subMetric1Label').innerText = "Issued Qty";
+                    document.getElementById('subMetric1Value').innerText = (dataRow.srr.issQty || 0).toLocaleString();
+                    document.getElementById('subMetric2Label').innerText = "Return Qty";
+                    document.getElementById('subMetric2Value').innerText = (dataRow.srr.retQty || 0).toLocaleString();
+                } else if (activeKPI === 2) {
+                    rate = dataRow.shop.rate || 0;
+                    document.getElementById('subMetric1Label').innerText = "Sold Qty";
+                    document.getElementById('subMetric1Value').innerText = (dataRow.shop.soldQty || 0).toLocaleString();
+                    document.getElementById('subMetric2Label').innerText = "Shop Return Qty";
+                    document.getElementById('subMetric2Value').innerText = (dataRow.shop.retQty || 0).toLocaleString();
+                } else if (activeKPI === 3) {
+                    rate = dataRow.forecast.rate || 0;
+                    document.getElementById('subMetric1Label').innerText = "Actual Sale";
+                    document.getElementById('subMetric1Value').innerText = (dataRow.forecast.actual || 0).toLocaleString();
+                    document.getElementById('subMetric2Label').innerText = "Forecast Sale";
+                    document.getElementById('subMetric2Value').innerText = (dataRow.forecast.forecast || 0).toLocaleString();
+                } else if (activeKPI === 4) {
+                    rate = dataRow.invoice.rate || 0;
+                    document.getElementById('subMetric1Label').innerText = "Incorrect Invoices";
+                    document.getElementById('subMetric1Value').innerText = (dataRow.invoice.incorrect || 0).toLocaleString();
+                    document.getElementById('subMetric2Label').innerText = "Total Invoices";
+                    document.getElementById('subMetric2Value').innerText = (dataRow.invoice.total || 0).toLocaleString();
+                }
             }
 
             document.getElementById('mainMetricValue').innerText = rate.toFixed(2) + '%';
@@ -395,20 +498,27 @@
             document.getElementById('tableThSub1').innerText = document.getElementById('subMetric1Label').innerText;
             document.getElementById('tableThSub2').innerText = document.getElementById('subMetric2Label').innerText;
 
-            const tableData = [...parsedData].reverse();
+            let tableData = activeKPI === 5 ? [...parsedWeeklyData].reverse() : [...parsedData].reverse();
 
             tableData.forEach(d => {
-                let rate = 0, sub1 = 0, sub2 = 0;
-                if (activeKPI === 1) { rate = d.srr.rate; sub1 = d.srr.issQty; sub2 = d.srr.retQty; }
-                else if (activeKPI === 2) { rate = d.shop.rate; sub1 = d.shop.soldQty; sub2 = d.shop.retQty; }
-                else if (activeKPI === 3) { rate = d.forecast.rate; sub1 = d.forecast.actual; sub2 = d.forecast.forecast; }
-                else if (activeKPI === 4) { rate = d.invoice.rate; sub1 = d.invoice.incorrect; sub2 = d.invoice.total; }
+                let rate = 0, sub1 = 0, sub2 = 0, periodLabel = "";
+                
+                if (activeKPI === 5) {
+                    periodLabel = d.weekLabel;
+                    rate = d.rate; sub1 = d.actualLoad; sub2 = d.capacity;
+                } else {
+                    periodLabel = d.month;
+                    if (activeKPI === 1) { rate = d.srr.rate; sub1 = d.srr.issQty; sub2 = d.srr.retQty; }
+                    else if (activeKPI === 2) { rate = d.shop.rate; sub1 = d.shop.soldQty; sub2 = d.shop.retQty; }
+                    else if (activeKPI === 3) { rate = d.forecast.rate; sub1 = d.forecast.actual; sub2 = d.forecast.forecast; }
+                    else if (activeKPI === 4) { rate = d.invoice.rate; sub1 = d.invoice.incorrect; sub2 = d.invoice.total; }
+                }
 
-                if (rate === null) return; 
+                if (rate === null || rate === undefined) return; 
 
                 const target = kpiDetails[activeKPI].target;
                 const type = kpiDetails[activeKPI].type;
-                let isSuccess = type === "<" ? rate < target : rate > target;
+                let isSuccess = type === "<" ? rate < target : rate >= target;
                 
                 const statusBadge = isSuccess ? 
                     `<span class="badge-success px-2 py-1 rounded text-xs font-bold">Pass</span>` : 
@@ -417,7 +527,7 @@
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-white/10 hover:bg-white/5 transition-colors";
                 tr.innerHTML = `
-                    <td class="p-3">${d.month}</td>
+                    <td class="p-3">${periodLabel}</td>
                     <td class="p-3 font-bold" style="color: ${colors[activeKPI]}">${(rate || 0).toFixed(2)}%</td>
                     <td class="p-3">${(sub1 || 0).toLocaleString()}</td>
                     <td class="p-3">${(sub2 || 0).toLocaleString()}</td>
@@ -428,28 +538,38 @@
         }
 
         function updateTrendChart() {
-            // CSS Animaiton eka trigger kireema
             const wrapper = document.getElementById('chartWrapper');
             wrapper.classList.remove('chart-draw-anim');
-            void wrapper.offsetWidth; // Refresh the CSS
+            void wrapper.offsetWidth; 
             wrapper.classList.add('chart-draw-anim');
-
-            const selectedMonth = document.getElementById('monthFilter').value;
-            const selectedIndex = parsedData.findIndex(d => d.month === selectedMonth);
-            const trendData = parsedData.slice(Math.max(0, selectedIndex - 11), selectedIndex + 1);
 
             let labels = [];
             let dataPoints = [];
             
-            trendData.forEach(d => {
-                let parts = d.month.split(' ');
-                labels.push(`${parts[1].substring(0,3)} '${parts[0].substring(2,4)}`);
+            if (activeKPI === 5) {
+                const selectedWeek = document.getElementById('weekFilter').value;
+                const selectedIndex = parsedWeeklyData.findIndex(d => d.weekLabel === selectedWeek);
+                const trendData = parsedWeeklyData.slice(Math.max(0, selectedIndex - 11), selectedIndex + 1);
+
+                trendData.forEach(d => {
+                    const shortMonth = d.monthStr.split(' ')[1].substring(0,3);
+                    labels.push(`${d.shortWeek} (${shortMonth})`); // Format: W1 (Aug)
+                    dataPoints.push(d.rate || 0);
+                });
+            } else {
+                const selectedMonth = document.getElementById('monthFilter').value;
+                const selectedIndex = parsedData.findIndex(d => d.month === selectedMonth);
+                const trendData = parsedData.slice(Math.max(0, selectedIndex - 11), selectedIndex + 1);
                 
-                if (activeKPI === 1) dataPoints.push(d.srr.rate || 0);
-                if (activeKPI === 2) dataPoints.push(d.shop.rate || 0);
-                if (activeKPI === 3) dataPoints.push(d.forecast.rate || 0);
-                if (activeKPI === 4) dataPoints.push(d.invoice.rate || 0);
-            });
+                trendData.forEach(d => {
+                    let parts = d.month.split(' ');
+                    labels.push(`${parts[1].substring(0,3)} '${parts[0].substring(2,4)}`);
+                    if (activeKPI === 1) dataPoints.push(d.srr.rate || 0);
+                    if (activeKPI === 2) dataPoints.push(d.shop.rate || 0);
+                    if (activeKPI === 3) dataPoints.push(d.forecast.rate || 0);
+                    if (activeKPI === 4) dataPoints.push(d.invoice.rate || 0);
+                });
+            }
 
             const lineColor = colors[activeKPI];
             const targetVal = kpiDetails[activeKPI].target;
@@ -491,7 +611,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: false, // Turn off native animation (CSS does the magic now)
+                    animation: false,
                     scales: {
                         y: { 
                             grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
@@ -531,16 +651,14 @@
                 document.exitFullscreen();
             }
         }
+        
         document.addEventListener('fullscreenchange', () => {
             const logo = document.getElementById('mainLogo');
-            
             if (!document.fullscreenElement) {
                 document.getElementById('fsBtn').innerHTML = "⛶ Full Screen";
-                // Full screen eken eliyata eddi logo eka hide karanawa
                 logo.classList.add('hidden');
             } else {
                 document.getElementById('fsBtn').innerHTML = "⬅ Exit Full Screen";
-                // Full screen giyama logo eka pennanawa
                 logo.classList.remove('hidden');
             }
         });
@@ -551,8 +669,8 @@
             if (e.target.closest('table') || e.target.closest('#tableDisplay')) return; 
             
             let nextId = activeKPI;
-            if (e.deltaY > 0) { nextId = activeKPI < 4 ? activeKPI + 1 : 1; } 
-            else if (e.deltaY < 0) { nextId = activeKPI > 1 ? activeKPI - 1 : 4; }
+            if (e.deltaY > 0) { nextId = activeKPI < 5 ? activeKPI + 1 : 1; } 
+            else if (e.deltaY < 0) { nextId = activeKPI > 1 ? activeKPI - 1 : 5; }
 
             if (nextId !== activeKPI) {
                 isScrolling = true;
