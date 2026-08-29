@@ -238,7 +238,8 @@
     <script>
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?gid=291083279&single=true&output=csv";
         
-        // Corrected Weekly CSV URL
+        // Weekly Vehicle Utilization sheet lives in its own tab, so it needs its own gid.
+        // (Previously this URL had no gid, which made it default to the wrong tab.)
         const WEEKLY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqjH1DE4bsXNv0WQdrPWM6BlJ03zZRDrOkSBogUElsBWTFbDgl3R4bWnX66EiRvO-10I4ZY6fyWZvH/pub?gid=1550219424&single=true&output=csv"; 
 
         let parsedData = [];
